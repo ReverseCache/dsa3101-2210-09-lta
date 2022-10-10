@@ -1,0 +1,7 @@
+#yolov5 clone
+model/yolov5/
+
+#predicted results
+model/runs/
+
+model/sample_weights/*.pt
