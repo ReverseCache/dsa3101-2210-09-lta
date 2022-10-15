@@ -5,3 +5,6 @@ model/yolov5/
 model/runs/
 
 model/sample_weights/*.pt
+
+#images zip files except the 2 test zip files
+model/images/*
