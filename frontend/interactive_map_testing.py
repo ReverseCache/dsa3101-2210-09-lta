@@ -5,9 +5,9 @@ from dash_extensions.javascript import assign
 import pandas as pd
 
 ##to put into dockerfile later
-##pip install dash==2.0.0
-##pip install dash-leaflet==0.1.23
-##pip install dash-extensions==0.0.65
+##pip install dash
+##pip install dash-leaflet
+##pip install dash-extensions
 ##pip install --upgrade protobuf==3.20.0
 
 # A few cities 
@@ -32,15 +32,44 @@ geojson_filter = assign("function(feature, context){return context.props.hideout
 # Create example app.
 app = Dash()
 app.layout = html.Div([
-    dl.Map(children=[
+    
+    dl.Map(
+        children=[
         dl.TileLayer(),
         dl.GeoJSON(data=geojson, options=dict(filter=geojson_filter), hideout=dd_defaults, id="geojson", zoomToBounds=True)
-    ], style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
-    dcc.Dropdown(id="dd", value=dd_defaults, options=dd_options, clearable=True)
+        ],
+        style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
+    
+    html.Div(children=[
+        html.Span("Select a region:"),
+        dcc.Dropdown(
+            id='title_dd',
+            options=[{'label':'North', 'value':'North'},
+                     {'label':'South', 'value':'South'},
+                     {'label':'East', 'value':'East'},
+                     {'label':'West', 'value':'West'}]),
+    ]),
+
+    html.Div(children=[
+        html.Span("Select a camera id:"),
+        dcc.Dropdown(id="dd", value=dd_defaults, options=dd_options, clearable=True),
+    ]),
+    
 ])
 
 # Link drop down to geojson hideout prop (could be done with a normal callback, but clientside is more performant).
-app.clientside_callback("function(x){return x;}", Output("geojson", "hideout"), Input("dd", "value"))
+#app.clientside_callback("function(x){return x;}", Output("geojson", "hideout"), Input("dd", "value"))
+
+@app.callback(
+    Output("geojson", "hideout"),
+    Input("dd", "value")
+)
+def update_output(value):
+    return value
 
 if __name__ == '__main__':
     app.run_server()
+
+
+
+
