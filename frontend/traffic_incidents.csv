@@ -1,4 +1,6 @@
 Type,Latitude,Longitude,Message
+Roadwork,1.3102816768323955,103.84411823547583,(17/10)0:26 Roadworks in CTE Tunnel (towards AYE) after Bukit Timah Rd Exit. Avoid lane 1.
+Vehicle breakdown,1.359395680381984,103.96135458196882,(17/10)0:24 Vehicle breakdown on TPE (towards SLE) at Tampines Ave 7 Exit.
 Roadwork,1.2927010888959432,103.84387196017157,(17/10)0:15 Roadworks in CTE Tunnel (towards SLE) after Merchant Rd Exit. Avoid lanes 1 and 2.
 Roadwork,1.3343019424885127,103.89126610702652,(17/10)0:13 Roadworks on KPE (towards ECP) before Airport Rd Entrance. Avoid lane 3.
 Roadwork,1.295263780961329,103.87556952103054,(17/10)0:06 Roadworks on ECP (towards City) at KPE(TPE) Exit. KPE(TPE) Exit closed.
@@ -9,8 +11,6 @@ Roadwork,1.2974932141430402,103.8467123587612,(17/10)0:01 Roadworks in Fort Cann
 Roadwork,1.299569189978845,103.87763386387459,(16/10)23:58 Roadworks on KPE (towards ECP) between PIE Entrance and ECP Exit. Avoid lane 3.
 Roadwork,1.3328624555776403,103.95546956132203,(16/10)23:47 Roadworks on Upper Changi Road East (toward City) after Expo Drive.
 Roadwork,1.3232861455921157,103.74749876328715,(16/10)23:46 Roadworks on AYE (towards MCE) at Jurong Town Hall Entrance.
-Accident,1.354379594509059,103.72674411209039,(16/10)23:44 Accident on PIE (towards Changi Airport) before Jurong Town Hall Rd. Avoid lane 3.
-Roadwork,1.3607327939319493,103.9607485705099,(16/10)23:40 Roadworks on TPE (towards SLE) after Tampines Ave 7 Exit. Avoid lane 1.
 Roadwork,1.3597153744733854,103.90350257984352,(16/10)23:20 Roadworks on KPE (towards ECP) at Tampines Road Entrance.
 Roadwork,1.3403268718282333,103.80513929623802,(16/10)22:57 Roadworks on PIE (towards Tuas) after Eng Neo Ave.
 Roadwork,1.3624351729454993,103.70777755195635,(16/10)22:55 Roadworks on PIE (towards Tuas) after KJE. Avoid lane 2.
