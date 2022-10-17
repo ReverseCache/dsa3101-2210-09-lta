@@ -1,8 +1,7 @@
-import os
 import random
-import shutil
 from pathlib import Path
 
+textDir = Path('./data/bbox_txt')
 imagesDir = Path('./data/images')
 imgList = list(imagesDir.iterdir())
 
@@ -38,20 +37,29 @@ val_images = imgList[int(imgLen - (imgLen*split)):]
 print("Training images: ", len(train_images))
 print("Validation images: ", len(val_images))
 
-for imgName in train_images:
-    print(imgName.name)
-#     og_path = os.path.join('images', imgName)
-#     target_path = os.path.join(train_path, imgName)
+for path_img in train_images:
+    base = path_img.name
+    dest = trainDir / base
+    path_img.rename(dest)
 
-#     shutil.copyfile(og_path, target_path)
-
+    path_text = textDir / (path_img.stem + ".txt")
+    base_txt = path_text.name
+    dest = trainDir / base_txt
+    path_text.rename(dest)
 #     og_txt_path = os.path.join('bbox_txt', imgName.replace('.jpg', '.txt'))
 #     target_txt_path = os.path.join(train_path, imgName.replace('.jpg', '.txt'))
 
 #     shutil.copyfile(og_txt_path, target_txt_path)
 
-# for imgName in val_images:
-#     og_path = os.path.join('images', imgName)
+for path_img in val_images:
+    base = path_img.name
+    dest = valDir / base
+    path_img.rename(dest)
+
+    path_text = textDir / (path_img.stem + ".txt")
+    base_txt = path_text.name
+    dest = valDir / base_txt
+    path_text.rename(dest)
 #     target_path = os.path.join(val_path, imgName)
 
 #     shutil.copyfile(og_path, target_path)
@@ -62,4 +70,4 @@ for imgName in train_images:
 #     shutil.copyfile(og_txt_path, target_txt_path)
 
 
-# print("Done! ")
+print("Completed!")

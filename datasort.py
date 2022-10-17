@@ -40,5 +40,5 @@ for img_file in rootdataDir.glob('*.jpg'):
     dest = imagesDir / base
     img_file.rename(dest)
 
-print(tree(rootdataDir))
+# print(tree(rootdataDir))
 print("Successfully ran the data sort")
