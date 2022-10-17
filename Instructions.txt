@@ -1,0 +1,3 @@
+Unzipt the data folder
+Run datasort 
+Run traintestsplit
