@@ -14,7 +14,7 @@ def tree(directory):
 
 
 if __name__ == '__main__':
-    rootdataDir = Path("./data")
+    rootdataDir = Path("./datax")
     # print(rootdataDir.resolve())
     bboxDir = rootdataDir / 'bbox_txt'
     try:

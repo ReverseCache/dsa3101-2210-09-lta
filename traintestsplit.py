@@ -17,9 +17,9 @@ def rm_tree(pth):
 
 # Main
 if __name__ == '__main__':
-    rootdataDir = Path('./data')
-    textDir = Path('./data/bbox_txt')
-    imagesDir = Path('./data/images')
+    rootdataDir = Path('./datax')
+    textDir = Path('./datax/bbox_txt')
+    imagesDir = Path('./datax/images')
     imgList = list(imagesDir.iterdir())
 
     # shuffling images
@@ -47,8 +47,8 @@ if __name__ == '__main__':
     imgLen = len(imgList)
     print("Images in total: ", imgLen)
 
-    train_images = imgList[: int(imgLen - (imgLen*split))]
-    val_images = imgList[int(imgLen - (imgLen*split)):]
+    train_images = imgList[: int(imgLen - (imgLen * split))]
+    val_images = imgList[int(imgLen - (imgLen * split)):]
 
     print("Training images: ", len(train_images))
     print("Validation images: ", len(val_images))
