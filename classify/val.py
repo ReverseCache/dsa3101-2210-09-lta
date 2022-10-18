@@ -20,6 +20,10 @@ Usage - formats:
                                        yolov5s-cls_paddle_model       # PaddlePaddle
 """
 
+from utils.torch_utils import select_device, smart_inference_mode
+from utils.general import LOGGER, Profile, check_img_size, check_requirements, colorstr, increment_path, print_args
+from utils.dataloaders import create_classification_dataloader
+from models.common import DetectMultiBackend
 import argparse
 import os
 import sys
@@ -33,11 +37,6 @@ ROOT = FILE.parents[1]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
-
-from models.common import DetectMultiBackend
-from utils.dataloaders import create_classification_dataloader
-from utils.general import LOGGER, Profile, check_img_size, check_requirements, colorstr, increment_path, print_args
-from utils.torch_utils import select_device, smart_inference_mode
 
 
 @smart_inference_mode()
