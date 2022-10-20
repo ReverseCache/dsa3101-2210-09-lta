@@ -1,0 +1,11 @@
+git reset --hard @{u}
+git clean -df -x
+git pull 
+
+
+#---------------------------------
+
+On windows specify "@{u}" (with double quotes).
+specifying @{u} or its verbose form @{upstream} is that the name of the remote repo and branch don't have to be explicitly specified
+
+Next, as needed, use git clean to remove untracked files, optionally also with -x
