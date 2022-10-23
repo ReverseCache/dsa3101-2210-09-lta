@@ -136,17 +136,18 @@ def update_camera_dd(region_dd):
 
 def update_map(cam_id):
     
-    map_title = 'All Cameras'
     df_map = df.copy()
     df_map = df_map[df_map['CameraID'] == cam_id]
+    geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
-    cam = [dict(name = str(df_map.iloc[0,0]), lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
-    cam_geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
+    if cam_id:
+        cam = [dict(name = str(df_map.iloc[0,0]), lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
+        geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
                 children=[
                     dl.TileLayer(),
-                    dl.GeoJSON(data=cam_geojson, zoomToBounds=True)
+                    dl.GeoJSON(data=geojson, zoomToBounds=True)
                 ],
                 style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
     
