@@ -6,12 +6,22 @@ import pandas as pd
 import plotly.express as px
 
 # get camera locations
-df = pd.read_csv(r'C:\Users\Chermane Goh\OneDrive - National University of Singapore\Y3S1\git\dsa3101-2210-09-lta\frontend\traffic_image_region.csv')
+##url = 'https://raw.githubusercontent.com/ReverseCache/dsa3101-2210-09-lta/main/frontend/traffic_image_region.csv?token=GHSAT0AAAAAABZPVYLWEQCR25P3XJOPIDYKY2UAHNQ'
+##df = pd.read_csv(url, index_col=0)
+df = pd.read_csv(r'C:\Users\Chermane Goh\OneDrive - National University of Singapore\Y3S1\git\dsa3101-2210-09-lta\frontend\traffic_count_sample.csv')
+
+#scatter map plot showing count of cars across singapore
+fig = px.scatter_mapbox(df, lat="Latitude", lon="Longitude", color="Count", size="Count",
+                        hover_name="CameraID", hover_data=["Region"],
+                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+fig.update_layout(mapbox_style="open-street-map")
+
+
+# interactive map displaying single camera
 camera = []
 for i in range(len(df)):
     d=dict(name = str(df.iloc[i,0]), lat = df.iloc[i,1], lon = df.iloc[i,2])
     camera.append(d)
-
 # Create drop down options.
 dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
 dd_defaults = [o["value"] for o in dd_options]
@@ -29,6 +39,15 @@ cameraID = list(df['CameraID'].unique())
 
 app = Dash()
 app.layout = html.Div([
+
+    html.Div(
+        children=[
+            html.H2('Current count of cars on the roads'),
+            dcc.Graph(figure=fig,
+                      style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
+        ],
+        style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'}
+    ),
     
     html.Div(
         children=[
