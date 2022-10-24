@@ -47,17 +47,17 @@ app.layout = html.Div([
             dbc.Col(html.Img(src='https://i.imgur.com/HNJVvzE.png',style={'height': '80%','width':'70%'}))
         ],
         style= {'text-align':'center','display':'flex'}
-            ),
+    ),
 
     html.Div(
         children=[
             html.H2('Current count of cars on the roads'),
             dcc.Graph(figure=fig,
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
-        ],
-        style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'}
+        ]
     ),
     
+    # Dropdown and map of selected camera
     html.Div(
         children=[
             html.H2('The following section will provide a breakdown of traffic situation at the camera location, please select the region and camera.'),
@@ -79,54 +79,77 @@ app.layout = html.Div([
         
         style={'text-align':'center', 'vertical-align':'top', 'background-color':'rgb(205,221,233)', 'padding':'30px'}
     ),
-
     dl.Map(
         children=[
             dl.TileLayer(),
             dl.GeoJSON(data=geojson, id="geojson", zoomToBounds=True)
         ],
-        style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
-    
+        style={'width': '80%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"
+        ),
+
+    html.Br(),
+
+    html.Div(
+        children=[
+            dbc.Col([
+                    html.H4('Car count:'+'<COUNT>'),
+                    html.Br(),
+                    html.H4('Rainfall:'+'<RAINFALL at nearest weather station>'),
+                    html.Br(),
+                    html.H4('Nearby Incidents:'+'<NEAREST INCIDENT>'),
+                    html.Br()]
+            ),
+            dbc.Col(html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '80%','width':'70%'}))
+            
+        ],
+        style= {'text-align':'center','display':'flex'}
+        ),
 
     # Historical data
     html.Div([
         dcc.Graph(id='line_graph',
         style={'background-color':'rgb(205,221,233)', 'padding':'30px'})
-    ]),
-    
+        ]),
+
+    html.H2('Upload a image'),
     # Upload photo to view metrics
-    dbc.Row(
-        [
-            dbc.Col(html.Div(
-            [dcc.Upload( 
-            id='upload-data', 
-            children=html.Div([ 'Drag and Drop or ', 
-            html.A('Select File') ], 
-            style={
-                'width': '96%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center',
-                'margin': '10px' 
-                }), 
-            multiple=False
-            )],
+    html.Div([
+        dbc.Col(html.Div(
+        [dcc.Upload( 
+        id='upload-data', 
+        children=html.Div([ 'Drag and Drop or ', 
+        html.A('Select File') ], 
+        style={
+            'width': '96%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px' 
+            }), 
+        multiple=False
+        )],
+        style={'padding': '5px 10px',
+                'background-color': 'SkyBlue'})),
 
-            style={'padding': '5px 10px',
-                   'background-color': 'SkyBlue'}), width=6),
-
-            dbc.Col(html.Div(id='upload-data-contents', 
-            style={'marginLeft': 'auto', 'marginRight':'auto', 
-                   'textAlign': 'center'}), 
-            width=6)
+        dbc.Col(html.Div(id='upload-data-contents', 
+        style={'marginLeft': 'auto', 'marginRight':'auto', 
+                'textAlign': 'center'}))
         ],
         style={'background-color':'rgb(205,221,233)', 'padding':'30px'}
     ),
+    html.Div([
+            html.H5('Image Uploded:'),
+            html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '50%','width':'40%'}),
+            html.H5('Car count:'+'<UPLOADED COUNT>')
+            ])
                     
-],style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
+],
+style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
+
+
 
 # Create a callback from the Region dropdown to the CameraID Dropdown
 @app.callback(
@@ -182,6 +205,7 @@ def display_plot(reg, cam_id):
 # copy from dash_app.py from dash_demo folder, only work for csv file
 @app.callback(Output('upload-data-contents', 'children'),
              Input('upload-data', 'contents'))
+
 def display_data(u_contents):
     if u_contents is not None:
         content_type, content_string = u_contents.split(',')
