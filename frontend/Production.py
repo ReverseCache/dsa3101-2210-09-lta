@@ -6,11 +6,13 @@ from dash import Dash, html, dcc, Output, Input
 from dash_extensions.javascript import assign
 import pandas as pd
 import plotly.express as px
+import os
+
 
 # get camera locations
 ##url = 'https://raw.githubusercontent.com/ReverseCache/dsa3101-2210-09-lta/main/frontend/traffic_image_region.csv?token=GHSAT0AAAAAABZPVYLWEQCR25P3XJOPIDYKY2UAHNQ'
 ##df = pd.read_csv(url, index_col=0)
-df = pd.read_csv(r'C:\Users\Chermane Goh\OneDrive - National University of Singapore\Y3S1\git\dsa3101-2210-09-lta\frontend\traffic_count_sample.csv')
+df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
@@ -37,6 +39,15 @@ cameraID = list(df['CameraID'].unique())
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div([
+
+    html.Div(
+        children=[
+            dbc.Col(html.Img(src='https://www.lta.gov.sg/content/dam/ltagov/img/general/logo.png',style={'height': '60%','width':'60%'})),
+            dbc.Col(html.H1('DSA3101 LTA 09')),
+            dbc.Col(html.Img(src='https://i.imgur.com/HNJVvzE.png',style={'height': '80%','width':'70%'}))
+        ],
+        style= {'text-align':'center','display':'flex'}
+            ),
 
     html.Div(
         children=[
@@ -76,11 +87,14 @@ app.layout = html.Div([
         ],
         style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"),
     
+
+    # Historical data
     html.Div([
         dcc.Graph(id='line_graph',
         style={'background-color':'rgb(205,221,233)', 'padding':'30px'})
     ]),
     
+    # Upload photo to view metrics
     dbc.Row(
         [
             dbc.Col(html.Div(
@@ -112,7 +126,7 @@ app.layout = html.Div([
         style={'background-color':'rgb(205,221,233)', 'padding':'30px'}
     ),
                     
-])
+],style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 # Create a callback from the Region dropdown to the CameraID Dropdown
 @app.callback(
