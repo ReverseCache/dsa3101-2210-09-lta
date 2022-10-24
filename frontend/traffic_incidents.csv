@@ -1,13 +1,3 @@
 Type,Latitude,Longitude,Message
-Vehicle breakdown,1.3404043854821721,103.80518952482252,(17/10)18:35 Vehicle breakdown on PIE (towards Changi Airport) after Eng Neo Ave.
-Heavy Traffic,1.2872616206683989,103.7957888801606,(17/10)18:19 Heavy Traffic on AYE (towards MCE) after Portsdown Ave Exit.
-Vehicle breakdown,1.380153724798648,103.92000382105674,(17/10)18:05 Vehicle breakdown on TPE (towards PIE) after KPE Exit with congestion till Punggol Rd Exit. Avoid lane 3.
-Heavy Traffic,1.437112674724346,103.76835136555768,(17/10)18:03 Heavy Traffic on BKE (towards Woodlands) at Woodlands Rd Exit.
-Accident,1.413743653820514,103.82318620162297,(17/10)17:56 Accident on Sembawang Road (towards Yishun Avenue 1) after Mandai Avenue.
-Heavy Traffic,1.3253040463836276,103.90239230771233,(17/10)17:53 Heavy Traffic on PIE (towards Changi Airport) between Kallang and Jalan Eunos.
-Heavy Traffic,1.3466597264509992,103.78874435588187,(17/10)17:53 Heavy Traffic on PIE (towards Changi Airport) between Bukit Timah Rd exit and BKE.
-Accident,1.3892191843048323,103.7524028667316,(17/10)17:53 Accident on KJE (towards BKE) after Woodlands Rd Exit with congestion till Sungei Tengah Exit. Avoid lanes 2 and 3.
-Heavy Traffic,1.3894798213551032,103.75981295440778,(17/10)17:51 Heavy Traffic on KJE (towards BKE) after Woodlands Rd Exit.
-Heavy Traffic,1.418846698038647,103.77094843054792,(17/10)17:36 Heavy Traffic on BKE (towards Woodlands) at SLE Exit.
-Heavy Traffic,1.3636712619785054,103.85930678405744,(17/10)17:10 Heavy Traffic on CTE (towards SLE) between Braddell Rd Exit and AMK Ave 3 Exit.
-Heavy Traffic,1.3438175254176334,103.64123962656836,(17/10)17:01 Heavy Traffic on AYE (towards Tuas) at Tuas West Dr Exit.
+Roadwork,1.3067334548123248,103.87235121463162,(24/10)18:41 Roadworks on KPE (towards TPE) at Nicoll Highway Entrance. Nicoll Highway Entrance closed.
+Roadwork,1.3060887358676292,103.77121478486488,(24/10)13:15 Roadworks on Clementi Road (towards AYE) after AYE.
