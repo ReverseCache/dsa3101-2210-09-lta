@@ -13,18 +13,16 @@ images = []
 images_names = []
 
 for zipped_file in os.listdir(images_path):
-    # if zipped_file >= "2022_01_05_12" and zipped_file <= "2022_01_05_12_30_00":
-    with zipfile.ZipFile(images_path + os.path.basename(zipped_file)) as zf:
-        for image_name in zf.namelist():
-            try:
-                image = Image.open(zf.open(image_name))
-                images.append(image)
-                images_names.append(image_name)
-            except Exception as e:
-                with open("error.txt", "a") as f:
-                    f.write("{} {} {}\n".format(zipped_file, image_name, str(e)))
-            break
-        break
+    if zipped_file >= "2022_01_05_17_50_00" and zipped_file <= "2022_01_05_18_00_00":
+        with zipfile.ZipFile(images_path + os.path.basename(zipped_file)) as zf:
+            for image_name in zf.namelist():
+                try:
+                    image = Image.open(zf.open(image_name))
+                    images.append(image)
+                    images_names.append(image_name)
+                except Exception as e:
+                    with open("error.txt", "a") as f:
+                        f.write("{} {} {}\n".format(zipped_file, image_name, str(e)))
         
 
 
