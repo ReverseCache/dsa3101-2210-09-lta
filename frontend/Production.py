@@ -17,7 +17,7 @@ df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
 fig = px.scatter_mapbox(df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_name="CameraID", hover_data=["Region"],
+                        hover_data={'Latitude':False, 'Longitude': False, 'CameraID':True, 'Region':True, 'Count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
 fig.update_layout(mapbox_style="open-street-map")
 
