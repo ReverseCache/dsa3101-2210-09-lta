@@ -1,12 +1,20 @@
 import requests
-import pandas as pd
+
 import numpy as np
 import urllib.request
+import torch
 
-# GPU accleration
-import cudf
+
 
 if __name__ == "__main__":
+    use_cuda = torch.cuda.is_available()
+    if (use_cuda):
+        # GPU accleration
+        import cudf as pd
+    else:
+        # CPU
+        import pandas as pd
+
     # Traffic Image
     traffic_image_url = 'http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA=='}
