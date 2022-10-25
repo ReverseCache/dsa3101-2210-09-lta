@@ -39,7 +39,7 @@ cameraID = list(df['CameraID'].unique())
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div([
-
+    
     html.Div(
         children=[
             dbc.Col(html.Img(src='https://www.lta.gov.sg/content/dam/ltagov/img/general/logo.png',style={'height': '60%','width':'60%'})),
@@ -49,6 +49,7 @@ app.layout = html.Div([
         style= {'text-align':'center','display':'flex'}
     ),
 
+    # map to show count of cars across Singapore
     html.Div(
         children=[
             html.H2('Current count of cars on the roads'),
@@ -77,7 +78,7 @@ app.layout = html.Div([
             html.Br(),
         ],
         
-        style={'text-align':'center', 'vertical-align':'top', 'background-color':'rgb(205,221,233)', 'padding':'30px'}
+        style={'text-align':'center', 'vertical-align':'top', 'padding':'30px'}
     ),
     dl.Map(
         children=[
@@ -158,11 +159,13 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 def update_camera_dd(region_dd):
   
-    region_camera = df[['Region', 'CameraID']].drop_duplicates()
-    relevant_camera_options = region_camera[region_camera['Region'] == region_dd]['CameraID'].values.tolist()
+    formatted_relevant_camera_options = [{'label':x, 'value':x} for x in cameraID]
+    if region_dd:
+        region_camera = df[['Region', 'CameraID']].drop_duplicates()
+        relevant_camera_options = region_camera[region_camera['Region'] == region_dd]['CameraID'].values.tolist()
     
-    # Create and return formatted relevant options with the same label and value
-    formatted_relevant_camera_options = [{'label':x, 'value':x} for x in relevant_camera_options]
+        # Create and return formatted relevant options with the same label and value
+        formatted_relevant_camera_options = [{'label':x, 'value':x} for x in relevant_camera_options]
     
     return formatted_relevant_camera_options
 
