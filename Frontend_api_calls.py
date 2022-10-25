@@ -1,9 +1,7 @@
 import requests
-
 import numpy as np
 import urllib.request
 import torch
-
 
 
 if __name__ == "__main__":
