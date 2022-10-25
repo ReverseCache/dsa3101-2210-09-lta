@@ -109,14 +109,15 @@ app.layout = html.Div([
     # Historical data
     html.Div([
         dcc.Graph(id='line_graph',
-        style={'background-color':'rgb(205,221,233)', 'padding':'30px'})
+                  style={'width': '90%', 'margin': 'auto'})
         ]),
+
+    html.Br(),
 
     html.H2('Upload a image'),
     # Upload photo to view metrics
     html.Div([
-        dbc.Col(html.Div(
-        [dcc.Upload( 
+        dcc.Upload( 
         id='upload-data', 
         children=html.Div([ 'Drag and Drop or ', 
         html.A('Select File') ], 
@@ -128,23 +129,24 @@ app.layout = html.Div([
             'borderStyle': 'dashed',
             'borderRadius': '5px',
             'textAlign': 'center',
-            'margin': '10px' 
+            'margin': '10px',
+            'background-color': 'SkyBlue'
             }), 
-        multiple=False
-        )],
-        style={'padding': '5px 10px',
-                'background-color': 'SkyBlue'})),
-
-        dbc.Col(html.Div(id='upload-data-contents', 
-        style={'marginLeft': 'auto', 'marginRight':'auto', 
-                'textAlign': 'center'}))
-        ],
-        style={'background-color':'rgb(205,221,233)', 'padding':'30px'}
+        multiple=False,
+        style={'width': '60%', 'margin': 'auto'}
+        )]
     ),
+    
+    html.Br(),
+    
     html.Div([
-            html.H5('Image Uploded:'),
-            html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '50%','width':'40%'}),
-            html.H5('Car count:'+'<UPLOADED COUNT>')
+            html.H5('Image Uploaded:'),
+            html.Img(id='upload-data-contents',
+                     style={'margin': '10px', 'height': '50%', 'width': '50%'}),
+            html.Br(),
+            #html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '50%','width':'40%'}),
+            html.Div([ 'Car count: ' + '<UPLOADED COUNT> ' + 'eg, ',
+                html.A(id='count') ])
             ])
                     
 ],
@@ -198,44 +200,40 @@ def update_map(cam_id):
     Output('line_graph', 'figure'), 
     Input('region_dd', 'value'),
     Input('camera_dd', 'value'))
+
 def display_plot(reg, cam_id):
     ft1 = df2[df2.Region==reg]
     ft2 = ft1[ft1.Id==cam_id]
-    fig = px.line(ft2, x='Time', y='Count',
-                  title='Past 30 minutes')
+    fig = px.line(ft2, x='Time', y='Count', title='Past 30 minutes')
     return fig
 
-# copy from dash_app.py from dash_demo folder, only work for csv file
-@app.callback(Output('upload-data-contents', 'children'),
-             Input('upload-data', 'contents'))
+# display uploaded image
+@app.callback(
+    Output('upload-data-contents', 'src'),
+    Input('upload-data', 'contents'))
 
-def display_data(u_contents):
+def display_image(u_contents):
     if u_contents is not None:
-        content_type, content_string = u_contents.split(',')
+        return u_contents
+    
+# copy from dash_app.py, need to modify
+@app.callback(
+    Output('count', 'children'),
+    Input('upload-data', 'contents'))
 
-        decoded = base64.b64decode(content_string)
-        in_df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-        in_dict = in_df.to_dict('list')
-        print(in_dict)
-        r1 = requests.post(url1, json=in_dict)
-        in_df['predictions'] = pd.to_numeric(pd.Series(r1.json()))
+def display_metric(u_contents):
+    if u_contents is not None:
+        #content_type, content_string = u_contents.split(',')
 
-        return dash_table.DataTable(
-            in_df.to_dict('records'),
-            [{'name': i, 'id': i} for i in in_df.columns],
-            sort_action= 'native',
-            filter_action='native', page_size=2,
-            style_header={'background-color': 'DimGray',
-                          'color':'white'},
-            style_data_conditional=[
-            {
-            'if': {
-                'column_id': 'predictions',
-            },
-            'backgroundColor': 'SandyBrown',
-            'color': 'white'
-            }]
-        )
+        #decoded = base64.b64decode(content_string)
+        #in_df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        #in_dict = in_df.to_dict('list')
+        #print(in_dict)
+        #r1 = requests.post(url1, json=in_dict)
+        #in_df['predictions'] = pd.to_numeric(pd.Series(r1.json()))
+
+        wt=df.Count[0] # replace with predicted image metric
+        return wt
 
 if __name__ == '__main__':
     app.run_server(debug=True)
