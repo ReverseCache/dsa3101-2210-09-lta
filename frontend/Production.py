@@ -245,7 +245,7 @@ def display_metric(u_contents):
 
 def update_image(cam_id):
 
-    link = 'https://drive.google.com/drive/u/0/folders/1cfemneajSpbMRkFqg4HkwzSUCLlyn5zv'
+    link = 'https://github.com/ReverseCache/dsa3101-2210-09-lta/blob/main/frontend/no_camera_selected.png'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
     
