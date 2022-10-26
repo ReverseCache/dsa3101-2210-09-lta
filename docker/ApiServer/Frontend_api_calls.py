@@ -1,21 +1,23 @@
 import requests
 import numpy as np
 import urllib.request
-import torch
+
 
 import json
 from urllib.parse import urlparse
 import httplib2 as http  # External library
 
+import torch
 
-def get_json():
+
+def get_json(path):
     # Authentication parameters
     headers = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA==',
                'accept': 'application/json'}  # this is by default
 
     # API parameters
-    uri = 'http://datamall2.mytransport.sg/'  # Resource URL
-    path = 'ltaodataservice/Traffic-Imagesv2'
+    uri = 'http://datamall2.mytransport.sg/ltaodataservice/'  # Resource URL
+    #path = 'Traffic-Imagesv2'
 
     # Build query string & specify type of API call
     target = urlparse(uri + path)
@@ -42,18 +44,14 @@ def payload():
         import pandas as pd
         print("CPU fall back")
 
+    # # Traffic Images
+    # traffic_images_df = pd.DataFrame(get_json("Traffic-Imagesv2")["value"])
+
     # Traffic Speed
-    traffic_speed_url = 'http://datamall2.mytransport.sg/ltaodataservice/TrafficSpeedBandsv2'
-    traffic_speed_req = requests.get(
-        url=traffic_speed_url, headers=headers_val)
-    traffic_speed_df = pd.DataFrame(eval(traffic_speed_req.content)['value'])
+    traffic_speed_df = pd.DataFrame(get_json("TrafficSpeedBandsv2")["value"])
 
     # Traffic incidents
-    traffic_incidents_url = 'http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents'
-    traffic_incidents_req = requests.get(
-        url=traffic_incidents_url, headers=headers_val)
-    traffic_incidents_df = pd.DataFrame(
-        eval(traffic_incidents_req.content)['value'])
+    traffic_incidents_df = pd.DataFrame(get_json("TrafficIncidents")["value"])
 
     def location_splitter(location):
         location = location.split(' ')
@@ -103,6 +101,7 @@ def payload():
         new_weather_df['name'], new_weather_df['latitude'], new_weather_df['longitude'])
 
     # Requiured Payload
+    traffic_images_json = get_json("Traffic-Imagesv2")
     traffic_speed_json = traffic_speed_df.to_json(orient='records')
     traffic_incidents_json = traffic_incidents_df.to_json(orient='records')
     new_weather_json = new_weather_df.to_json(orient='records')
@@ -111,4 +110,4 @@ def payload():
 
 
 if __name__ == "__main__":
-    traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
+    traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
