@@ -106,7 +106,7 @@ def payload():
     traffic_incidents_json = traffic_incidents_df.to_json(orient='records')
     new_weather_json = new_weather_df.to_json(orient='records')
 
-    return traffic_speed_json, traffic_incidents_json, new_weather_json
+    return traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json
 
 
 if __name__ == "__main__":

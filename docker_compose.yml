@@ -28,4 +28,9 @@ services:
       - ${API_Port}:1234
     # depends_on:
     #   - gpu_test
-    
+  FileServer:
+    build:
+      context: ./docker/FileServer
+      dockerfile: Dockerfile
+    ports:
+      - ${FILE_Port}:4321
