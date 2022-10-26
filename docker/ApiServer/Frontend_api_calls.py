@@ -10,6 +10,9 @@ import httplib2 as http  # External library
 import torch
 
 
+from threading import Timer
+
+
 def get_json(path):
     # Authentication parameters
     headers = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA==',
@@ -109,10 +112,23 @@ def payload():
     return traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json
 
 
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
 if __name__ == "__main__":
-    every 5 mins:
+
+    def driver():
         traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
         requests.post("http://modelservice:8000", traffic_images_json)
         requests.post("http://fileservice:8000", traffic_speed_json)
         requests.post("http://fileservice:8000", traffic_incidents_json)
         requests.post("http://fileservice:8000", new_weather_json)
+
+    timer = RepeatTimer(300, driver)
+    timer.start()
+    # Runs hundred iterations before service shuts down
+    time.sleep(300*100)
+    timer.cancel()
