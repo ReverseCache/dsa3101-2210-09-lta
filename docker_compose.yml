@@ -20,6 +20,12 @@ services:
       - ${RABBIT_ManagementPort}:15672
       - ${RABBIT_MainPort}:5672
 
+  interface:
+    build:
+      context: ./docker/ApiServer
+      dockerfile: Dockerfile
+    ports:
+      - ${INTERFACE_Port}:8090
   apiServer:
     build:
       context: ./docker/ApiServer
@@ -28,9 +34,22 @@ services:
       - ${API_Port}:1234
     # depends_on:
     #   - gpu_test
-  FileServer:
+  fileServer:
     build:
       context: ./docker/FileServer
       dockerfile: Dockerfile
     ports:
       - ${FILE_Port}:4321
+
+  modelServer:
+    build:
+      context: ./docker/ModelServer
+      dockerfile: Dockerfile
+    ports:
+      - ${MODEL_Port}:8000
+  frontEnd:
+    build:
+      context: ./docker/FrontEnd
+      dockerfile: Dockerfile
+    # ports:
+    #   - ${FE_Port}:8000
