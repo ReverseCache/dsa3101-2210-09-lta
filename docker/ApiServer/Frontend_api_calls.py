@@ -123,9 +123,9 @@ if __name__ == "__main__":
     def driver():
         traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
         requests.post("http://modelservice:8000", traffic_images_json)
-        requests.post("http://fileservice:8000", traffic_speed_json)
-        requests.post("http://fileservice:8000", traffic_incidents_json)
-        requests.post("http://fileservice:8000", new_weather_json)
+        requests.post("http://fileservice:4321", traffic_speed_json)
+        requests.post("http://fileservice:4321", traffic_incidents_json)
+        requests.post("http://fileservice:4321", new_weather_json)
 
     timer = RepeatTimer(300, driver)
     timer.start()
