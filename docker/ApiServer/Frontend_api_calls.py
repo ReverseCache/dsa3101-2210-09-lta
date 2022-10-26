@@ -4,14 +4,16 @@ import urllib.request
 import torch
 
 
-if __name__ == "__main__":
+def payload():
     use_cuda = torch.cuda.is_available()
     if (use_cuda):
         # GPU accleration
         import cudf as pd
+        print("GPU acceleration via rapids")
     else:
         # CPU
         import pandas as pd
+        print("CPU fall back")
 
     # Traffic Image
     traffic_image_url = 'http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
@@ -81,7 +83,13 @@ if __name__ == "__main__":
         new_weather_df['name'], new_weather_df['latitude'], new_weather_df['longitude'])
 
     # Requiured Payload
-    traffic_image_df.to_csv('traffic_image.csv', index=False)
-    traffic_speed_df.to_csv('traffic_speed.csv', index=False)
-    traffic_incidents_df.to_csv('traffic_incidents.csv', index=False)
-    new_weather_df.to_csv('weather.csv', index=False)
+    ti = traffic_image_df.to_csv('traffic_image.csv', index=False)
+    ts = traffic_speed_df.to_csv('traffic_speed.csv', index=False)
+    tinc = traffic_incidents_df.to_csv('traffic_incidents.csv', index=False)
+    nw = new_weather_df.to_csv('weather.csv', index=False)
+
+    return ti, ts, tinc, nw
+
+
+if __name__ == "__main__":
+    ti, ts, tinc, nw = payload()

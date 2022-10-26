@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  # gpu_test:
+  #   image: nvidia/cuda:10.2-base
+  #   command: nvidia-smi
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  apiServer:
+    build:
+      context: ./docker/ApiServer
+      dockerfile: Dockerfile
+    ports:
+      - ${API_Port}:1234
+    # depends_on:
+    #   - gpu_test
+    
