@@ -93,7 +93,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             dbc.Col([
-                    html.H4('Car count:'+'<COUNT>'),
+                    html.H4(id='car count'),
                     html.Br(),
                     html.H4('Rainfall:'+'<RAINFALL at nearest weather station>'),
                     html.Br(),
@@ -238,7 +238,6 @@ def display_metric(u_contents):
         return wt
 
 # Create a callback from the CameraID dropdown to the traffic image
-
 @app.callback(
     Output("traffic image", "src"),
     Input("camera_dd", "value"))
@@ -257,6 +256,18 @@ def update_image(cam_id):
         link = traffic_image_df.loc[traffic_image_df.CameraID == str(cam_id), 'ImageLink'].values[0]
 
     return link
+
+# Create a callback from the CameraID dropdown to count
+@app.callback(
+    Output("car count", "children"),
+    Input("camera_dd", "value"))
+
+def update_count(cam_id):
+    count = 'please select a camera'
+    if cam_id:
+        count = df.loc[df.CameraID == cam_id, 'Count'].values[0]
+    return f'Car count: {count}'
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
