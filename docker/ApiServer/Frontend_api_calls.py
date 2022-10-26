@@ -3,6 +3,33 @@ import numpy as np
 import urllib.request
 import torch
 
+import json
+from urllib.parse import urlparse
+import httplib2 as http  # External library
+
+
+def get_json():
+    # Authentication parameters
+    headers = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA==',
+               'accept': 'application/json'}  # this is by default
+
+    # API parameters
+    uri = 'http://datamall2.mytransport.sg/'  # Resource URL
+    path = 'ltaodataservice/Traffic-Imagesv2'
+
+    # Build query string & specify type of API call
+    target = urlparse(uri + path)
+    method = 'GET'
+    body = ''
+
+    # Get handle to http
+    h = http.Http()
+    # Obtain results
+    response, content = h.request(target.geturl(), method, body, headers)
+    # Parse JSON to print
+    jsonObj = json.loads(content)
+    return jsonObj
+
 
 def payload():
     use_cuda = torch.cuda.is_available()
@@ -14,13 +41,6 @@ def payload():
         # CPU
         import pandas as pd
         print("CPU fall back")
-
-    # Traffic Image
-    traffic_image_url = 'http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
-    headers_val = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA=='}
-    traffic_image_req = requests.get(
-        url=traffic_image_url, headers=headers_val)
-    traffic_image_df = pd.DataFrame(eval(traffic_image_req.content)['value'])
 
     # Traffic Speed
     traffic_speed_url = 'http://datamall2.mytransport.sg/ltaodataservice/TrafficSpeedBandsv2'
@@ -83,13 +103,12 @@ def payload():
         new_weather_df['name'], new_weather_df['latitude'], new_weather_df['longitude'])
 
     # Requiured Payload
-    ti = traffic_image_df.to_csv('traffic_image.csv', index=False)
-    ts = traffic_speed_df.to_csv('traffic_speed.csv', index=False)
-    tinc = traffic_incidents_df.to_csv('traffic_incidents.csv', index=False)
-    nw = new_weather_df.to_csv('weather.csv', index=False)
+    traffic_speed_json = traffic_speed_df.to_json(orient='records')
+    traffic_incidents_json = traffic_incidents_df.to_json(orient='records')
+    new_weather_json = new_weather_df.to_json(orient='records')
 
-    return ti, ts, tinc, nw
+    return traffic_speed_json, traffic_incidents_json, new_weather_json
 
 
 if __name__ == "__main__":
-    ti, ts, tinc, nw = payload()
+    traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
