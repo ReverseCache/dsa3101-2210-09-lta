@@ -10,6 +10,16 @@ services:
   #           - driver: nvidia
   #             count: 1
   #             capabilities: [gpu]
+  rabbitmq:
+    hostname: rabbit
+    image: "rabbitmq:3-management"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_User}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_Pass}
+    ports:
+      - ${RABBIT_ManagementPort}:15672
+      - ${RABBIT_MainPort}:5672
+
   apiServer:
     build:
       context: ./docker/ApiServer
