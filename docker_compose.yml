@@ -19,37 +19,67 @@ services:
     ports:
       - ${RABBIT_ManagementPort}:15672
       - ${RABBIT_MainPort}:5672
+    networks:
+      - bridge-net
 
   interface:
+    hostname: interfaceservice
+    container_name: interfaceservice
     build:
       context: ./docker/ApiServer
       dockerfile: Dockerfile
     ports:
       - ${INTERFACE_Port}:8090
+    networks:
+      - bridge-net
+
   apiServer:
+    hostname: apiservice
+    container_name: apiservice
     build:
       context: ./docker/ApiServer
       dockerfile: Dockerfile
     ports:
       - ${API_Port}:1234
+    networks:
+      - bridge-net
     # depends_on:
     #   - gpu_test
+    
   fileServer:
+    hostname: fileservice
+    container_name: fileservice
     build:
       context: ./docker/FileServer
       dockerfile: Dockerfile
     ports:
       - ${FILE_Port}:4321
+    networks:
+      - bridge-net
 
   modelServer:
+    hostname: modelservice
+    container_name: modelservice
     build:
       context: ./docker/ModelServer
       dockerfile: Dockerfile
     ports:
       - ${MODEL_Port}:8000
+    networks:
+      - bridge-net
+
   frontEnd:
+    hostname: feservice
+    container_name: feservice
     build:
       context: ./docker/FrontEnd
       dockerfile: Dockerfile
+    networks:
+      - bridge-net
     # ports:
     #   - ${FE_Port}:8000
+
+networks:
+  bridge-net:
+    name: bridge_network
+    driver: bridge

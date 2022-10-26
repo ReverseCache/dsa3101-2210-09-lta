@@ -112,5 +112,7 @@ def payload():
 if __name__ == "__main__":
     every 5 mins:
         traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
-        POST(traffic_images_json) -> ModelServer
-        POST(traffic_speed_json, traffic_incidents_json, new_weather_json) -> FileServer
+        requests.post("http://modelservice:8000", traffic_images_json)
+        requests.post("http://fileservice:8000", traffic_speed_json)
+        requests.post("http://fileservice:8000", traffic_incidents_json)
+        requests.post("http://fileservice:8000", new_weather_json)
