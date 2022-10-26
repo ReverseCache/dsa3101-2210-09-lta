@@ -254,7 +254,7 @@ def update_image(cam_id):
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
         #link = traffic_image_df[traffic_image_df['CameraID'] == cam_id]
         #link = link.iloc[0,3]
-        link = traffic_image_df.loc[traffic_image_df.CameraID == cam_id, 'ImageLink'].values[0]
+        link = traffic_image_df.loc[traffic_image_df.CameraID == str(cam_id), 'ImageLink'].values[0]
 
     return link
 
