@@ -100,7 +100,9 @@ app.layout = html.Div([
                     html.H4('Nearby Incidents:'+'<NEAREST INCIDENT>'),
                     html.Br()]
             ),
-            dbc.Col(html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '80%','width':'70%'}))
+            dbc.Col(html.Img(
+                        id='traffic image',
+                        style={'height': '80%','width':'70%'}))
             
         ],
         style= {'text-align':'center','display':'flex'}
@@ -234,6 +236,27 @@ def display_metric(u_contents):
 
         wt=df.Count[0] # replace with predicted image metric
         return wt
+
+# Create a callback from the CameraID dropdown to the traffic image
+
+@app.callback(
+    Output("traffic image", "src"),
+    Input("camera_dd", "value"))
+
+def update_image(cam_id):
+
+    link = 'https://i.imgur.com/kqLjRl7.jpg'
+    traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
+    headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
+    
+    if cam_id:
+        traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
+        traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
+        #link = traffic_image_df[traffic_image_df['CameraID'] == cam_id]
+        #link = link.iloc[0,3]
+        link = traffic_image_df.loc[traffic_image_df.CameraID == cam_id, 'ImageLink'].values[0]
+
+    return link
 
 if __name__ == '__main__':
     app.run_server(debug=True)
