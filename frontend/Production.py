@@ -44,7 +44,7 @@ app.layout = html.Div([
         children=[
             dbc.Col(html.Img(src='https://www.lta.gov.sg/content/dam/ltagov/img/general/logo.png',style={'height': '60%','width':'60%'})),
             dbc.Col(html.H1('DSA3101 LTA 09')),
-            dbc.Col(html.Img(src='https://imgur.com/HNJVvzE.png',style={'height': '80%','width':'70%'}))
+            dbc.Col(html.Img(src='https://raw.githubusercontent.com/ReverseCache/dsa3101-2210-09-lta/main/frontend/NUS_logo.png?token=GHSAT0AAAAAABZPVZKPEHPIWLNDGK2AQ6XGY22NJSA',style={'height': '80%','width':'70%'}))
         ],
         style= {'text-align':'center','display':'flex'}
     ),
