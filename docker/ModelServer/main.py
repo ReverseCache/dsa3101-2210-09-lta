@@ -76,7 +76,7 @@ async def get_prediction(file: bytes = File(...)):
     # return Response(content = io.BytesIO(base64.b64decode(img_string)).getvalue(), media_type = "image/jpeg")
 
     output_payload = {"count_img_strings": count_img_strings, "congestion_img_strings": congestion_img_strings}
-    # call request.POST FileServer for result
+    requests.post("http://fileservice:4321", output_payload)
     return output_payload
 
 @app.post("/get_predictions")
@@ -129,6 +129,7 @@ async def get_predictions(input_payload: dict = Body(...)):
         output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions,
                 "count_img_strings": count_img_strings, "congestion_img_strings": congestion_img_strings}
         
+        requests.post("http://fileservice:4321", output_payload)
         return output_payload #uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 @app.get('/notify/v1/health')
