@@ -5,8 +5,8 @@ import dash_leaflet.express as dlx
 from dash import Dash, html, dcc, Output, Input
 from dash_extensions.javascript import assign
 import pandas as pd
-import plotly.express as px
-import os
+import plotly.express as px\
+
 
 
 # get camera locations
@@ -44,7 +44,7 @@ app.layout = html.Div([
         children=[
             dbc.Col(html.Img(src='https://www.lta.gov.sg/content/dam/ltagov/img/general/logo.png',style={'height': '60%','width':'60%'})),
             dbc.Col(html.H1('DSA3101 LTA 09')),
-            dbc.Col(html.Img(src='https://i.imgur.com/HNJVvzE.png',style={'height': '80%','width':'70%'}))
+            dbc.Col(html.Img(src='https://imgur.com/HNJVvzE.png',style={'height': '80%','width':'70%'}))
         ],
         style= {'text-align':'center','display':'flex'}
     ),
@@ -244,7 +244,7 @@ def display_metric(u_contents):
 
 def update_image(cam_id):
 
-    link = 'https://github.com/ReverseCache/dsa3101-2210-09-lta/blob/main/frontend/no_camera_selected.png'
+    link = 'https://raw.githubusercontent.com/ReverseCache/dsa3101-2210-09-lta/main/frontend/no_camera_selected.png?token=GHSAT0AAAAAABZPVZKOO5GD6M7K53VBAFN6Y22NCIQ'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
     
