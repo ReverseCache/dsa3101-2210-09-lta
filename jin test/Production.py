@@ -95,7 +95,7 @@ app.layout = html.Div([
                     html.Br(),
                     html.H4(id='rainfall'),
                     html.Br(),
-                    html.H4('Nearby Incidents:'+'<NEAREST INCIDENT>'),
+                    html.H4(id='incidents'),
                     html.Br()]
             ),
             dbc.Col(html.Img(
@@ -275,6 +275,20 @@ def update_rainfall(cam_id):
     if cam_id:
         rainfall = main_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
     return f'rainfall: {rainfall}'
+
+@app.callback(
+    Output("incidents", "children"),
+    Input("camera_dd", "value"))
+
+def update_incidents(cam_id):
+    incidents = 'please select a camera'
+    incident_res=''
+    new_line = '\n'
+    if cam_id:
+        for i in main_df.loc[main_df['CameraID']==cam_id,][['Message']].reset_index(drop=True).itertuples():
+            incident_res+= '%s. %s \n'%(str(i[0]+1),i[1])
+    incidents=incident_res
+    return f"Nearby Incidents:{incidents}"
 
 
 if __name__ == '__main__':
