@@ -292,16 +292,16 @@ def update_rainfall(cam_id):
 
 def update_incidents(cam_id):
     incidents = 'please select a camera'
-    incident_res=[]
+    incident_res=''
+    counter=1
     if cam_id:
+        incident_res+= '%s incidents nearby, '%(len(incidents_df.loc[incidents_df['CameraID']==cam_id,].index))
         for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
-            incident_res.append(i)
-            incident_res.append(html.Br())
-        if incident_res==[]:
-            incidents='No incidents nearby'
-        else:
-            incidents=incident_res
+            incident_res+= " %s. %s "%(counter,i)
+            counter += 1
+        incidents=incident_res
     return f"Nearby Incidents: {incidents}"
+
 
 
 if __name__ == '__main__':
