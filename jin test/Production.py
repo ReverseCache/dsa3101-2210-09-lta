@@ -12,6 +12,7 @@ import plotly.express as px
 
 
 main_df = pd.read_csv('main_df.csv')
+incidents_df=pd.read_csv('traffic_incidents.csv')
 df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
@@ -289,11 +290,10 @@ def update_rainfall(cam_id):
 
 def update_incidents(cam_id):
     incidents = 'please select a camera'
-    incident_res=''
-    new_line = '\n'
+    incident_res=[]
     if cam_id:
-        for i in main_df.loc[main_df['CameraID']==cam_id,][['Message']].reset_index(drop=True).itertuples():
-            incident_res+= '%s. %s \n'%(str(i[0]+1),i[1])
+        for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
+            incident_res.append(i)
     incidents=incident_res
     return f"Nearby Incidents:{incidents}"
 
