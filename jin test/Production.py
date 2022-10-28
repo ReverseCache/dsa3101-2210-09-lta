@@ -294,7 +294,10 @@ def update_incidents(cam_id):
     if cam_id:
         for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
             incident_res.append(i)
-    incidents=incident_res
+        if incident_res==[]:
+            incidents='No incidents nearby'
+        else:
+            incidents=incident_res
     return f"Nearby Incidents:{incidents}"
 
 
