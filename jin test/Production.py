@@ -17,16 +17,16 @@ df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
-fig = px.scatter_mapbox(df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_data={'Latitude':False, 'Longitude': False, 'CameraID':True, 'Region':True, 'Count':True},
+fig = px.scatter_mapbox(main_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
+                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
 fig.update_layout(mapbox_style="open-street-map")
 
 
 # interactive map displaying single camera
 camera = []
-for i in range(len(df)):
-    d=dict(name = str(df.iloc[i,0]), lat = df.iloc[i,1], lon = df.iloc[i,2])
+for i in range(len(main_df)):
+    d=dict(name = main_df.iloc[i,6], lat = main_df.iloc[i,1], lon = main_df.iloc[i,2])
     camera.append(d)
 # Create drop down options.
 dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
@@ -34,8 +34,10 @@ dd_defaults = [o["value"] for o in dd_options]
 # Generate geojson with a marker for each city and name as tooltip.
 geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
-region = list(df['Region'].unique())
-cameraID = list(df['CameraID'].unique())
+region = list(main_df['Region'].unique())
+cameraID = list(main_df['CameraID'].unique())
+RoadName = list(main_df['CameraID'].unique())
+cam_road=main_df[['CameraID', 'RoadName']].values.tolist()
 
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -68,14 +70,14 @@ app.layout = html.Div([
             dcc.Dropdown(
                 id='region_dd',
                 options=[{'label':r, 'value':r} for r in region],
-                style={'width':'200px', 'margin':'0 auto'}),
+                style={'width':'300px', 'margin':'0 auto'}),
             html.Br(),
-            html.H3('Select a Camera'),
+            html.H3('Select a Road'),
             dcc.Dropdown(
                 id='camera_dd',
                 optionHeight=30,
                 maxHeight=150,
-                style={'width':'200px', 'margin':'0 auto'}),
+                style={'width':'300px', 'margin':'0 auto'}),
             html.Br(),
         ],
         
@@ -165,13 +167,13 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 def update_camera_dd(region_dd):
   
-    formatted_relevant_camera_options = [{'label':x, 'value':x} for x in cameraID]
+    formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in cam_road]
     if region_dd:
-        region_camera = df[['Region', 'CameraID']].drop_duplicates()
-        relevant_camera_options = region_camera[region_camera['Region'] == region_dd]['CameraID'].values.tolist()
+        region_camera = main_df[['Region', 'CameraID', 'RoadName']].drop_duplicates()
+        relevant_camera_options = region_camera[region_camera['Region'] == region_dd]['CameraID', 'RoadName'].values.tolist()
     
         # Create and return formatted relevant options with the same label and value
-        formatted_relevant_camera_options = [{'label':x, 'value':x} for x in relevant_camera_options]
+        formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in relevant_camera_options]
     
     return formatted_relevant_camera_options
 
@@ -182,12 +184,12 @@ def update_camera_dd(region_dd):
 
 def update_map(cam_id):
     
-    df_map = df.copy()
+    df_map = main_df.copy()
     df_map = df_map[df_map['CameraID'] == cam_id]
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
-        cam = [dict(name = str(df_map.iloc[0,0]), lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
+        cam = [dict(name = df_map.iloc[0,0], lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
