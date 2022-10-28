@@ -282,7 +282,7 @@ def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     if cam_id:
         rainfall = main_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
-    return f'rainfall: {rainfall}'
+    return f'rainfall in mm: {rainfall}'
 
 @app.callback(
     Output("incidents", "children"),
@@ -294,11 +294,12 @@ def update_incidents(cam_id):
     if cam_id:
         for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
             incident_res.append(i)
+            incident_res.append(html.Br())
         if incident_res==[]:
             incidents='No incidents nearby'
         else:
             incidents=incident_res
-    return f"Nearby Incidents:{incidents}"
+    return f"Nearby Incidents: {incidents}"
 
 
 if __name__ == '__main__':
