@@ -1,0 +1,3 @@
+[submodule "jin test/yolov5"]
+	path = jin test/yolov5
+	url = git@github.com:ultralytics/yolov5.git

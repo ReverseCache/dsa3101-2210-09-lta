@@ -1,9 +1,11 @@
+import torch
 import io, base64, requests
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 import dash_leaflet.express as dlx
 from dash import Dash, html, dcc, Output, Input
 from dash_extensions.javascript import assign
+from PIL import Image
 import pandas as pd
 import plotly.express as px
 
@@ -115,7 +117,7 @@ app.layout = html.Div([
     html.Br(),
 
     html.H2('Upload a image'),
-    # Upload photo to view metrics
+    # Upload photo to view metrics, modified from dash_app.py (HDB demo)
     html.Div([
         dcc.Upload( 
         id='upload-data', 
@@ -141,12 +143,13 @@ app.layout = html.Div([
     
     html.Div([
             html.H5('Image Uploaded:'),
-            html.Img(id='upload-data-contents',
+            html.Img(id='image',
                      style={'margin': '10px', 'height': '50%', 'width': '50%'}),
             html.Br(),
-            #html.Img(src='https://i.imgur.com/kqLjRl7.jpg',style={'height': '50%','width':'40%'}),
-            html.Div([ 'Car count: ' + '<UPLOADED COUNT> ' + 'eg, ',
-                html.A(id='count') ])
+            html.Div([ 'Car count: ',
+                html.A(id='count') ]),
+            html.Div([ 'Traffic jam: ',
+                html.A(id='jam') ])
             ])
                     
 ],
@@ -209,31 +212,35 @@ def display_plot(reg, cam_id):
 
 # display uploaded image
 @app.callback(
-    Output('upload-data-contents', 'src'),
+    Output('image', 'src'),
     Input('upload-data', 'contents'))
 
-def display_image(u_contents):
-    if u_contents is not None:
-        return u_contents
+def display_image(data):
+    if data is not None:
+        return data
     
-# copy from dash_app.py, need to modify
+# display metric from uploaded image
 @app.callback(
     Output('count', 'children'),
-    Input('upload-data', 'contents'))
+    Output('jam', 'children'),
+    Input('upload-data', 'filename'))
 
-def display_metric(u_contents):
-    if u_contents is not None:
-        #content_type, content_string = u_contents.split(',')
-
-        #decoded = base64.b64decode(content_string)
-        #in_df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-        #in_dict = in_df.to_dict('list')
-        #print(in_dict)
-        #r1 = requests.post(url1, json=in_dict)
-        #in_df['predictions'] = pd.to_numeric(pd.Series(r1.json()))
-
-        wt=df.Count[0] # replace with predicted image metric
-        return wt
+def display_metric(data):
+    if data is not None:
+        img = Image.open(data)
+        count_model = torch.hub.load('./yolov5', 'custom', path = './weights/count_best.pt', source='local')
+        congestion_model = torch.hub.load('./yolov5', 'custom', path = './weights/congestion_best.pt', source='local')
+        count_results = count_model(img)
+        congestion_results = congestion_model(img)
+        count_vehicles = list(map(len, count_results.pandas().xyxy))
+        congestions = list(map(lambda x: min(sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
+        if congestions[0]==1:
+            congested="Yes"
+        else:
+            congested="No"
+        return count_vehicles, congested
+    else:
+        return None, None
 
 # Create a callback from the CameraID dropdown to the traffic image
 @app.callback(
