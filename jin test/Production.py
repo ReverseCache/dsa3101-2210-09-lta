@@ -36,7 +36,7 @@ geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera
 
 region = list(main_df['Region'].unique())
 cameraID = list(main_df['CameraID'].unique())
-RoadName = list(main_df['CameraID'].unique())
+RoadName = list(main_df['RoadName'].unique())
 cam_road=main_df[['CameraID', 'RoadName']].values.tolist()
 
 
@@ -170,7 +170,7 @@ def update_camera_dd(region_dd):
     formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in cam_road]
     if region_dd:
         region_camera = main_df[['Region', 'CameraID', 'RoadName']].drop_duplicates()
-        relevant_camera_options = region_camera[region_camera['Region'] == region_dd]['CameraID', 'RoadName'].values.tolist()
+        relevant_camera_options = region_camera[region_camera['Region'] == region_dd][['CameraID', 'RoadName']].values.tolist()
     
         # Create and return formatted relevant options with the same label and value
         formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in relevant_camera_options]
