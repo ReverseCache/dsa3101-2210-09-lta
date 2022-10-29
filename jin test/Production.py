@@ -121,13 +121,14 @@ app.layout = html.Div([
 
     # Historical data
     html.Div([
+        html.H2('Historical Count of Cars'),
         dcc.Graph(id='line_graph',
                   style={'width': '90%', 'margin': 'auto'})
         ]),
 
     html.Br(),
 
-    html.H2('Upload a image'),
+    html.H2('Upload an image'),
     # Upload photo to view metrics, modified from dash_app.py (HDB demo)
     html.Div([
         dcc.Upload( 
