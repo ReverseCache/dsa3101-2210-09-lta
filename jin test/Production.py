@@ -55,7 +55,7 @@ app.layout = html.Div([
     # map to show count of cars across Singapore
     html.Div(
         children=[
-            html.H2('Current count of cars on the roads'),
+            html.H2('Real-time Count of Cars'),
             dcc.Graph(figure=fig,
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
@@ -64,20 +64,25 @@ app.layout = html.Div([
     # Dropdown and map of selected camera
     html.Div(
         children=[
-            html.H2('The following section will provide a breakdown of traffic situation at the camera location'),
+            html.H2('Real-time traffic situation'),
             html.Br(),
-            html.H3('Select a Region'),
-            dcc.Dropdown(
-                id='region_dd',
-                options=[{'label':r, 'value':r} for r in region],
-                style={'width':'300px', 'margin':'0 auto'}),
-            html.Br(),
-            html.H3('Select a Road'),
-            dcc.Dropdown(
-                id='camera_dd',
-                optionHeight=30,
-                maxHeight=150,
-                style={'width':'300px', 'margin':'0 auto'}),
+            html.Div([
+                dbc.Col([
+                    html.H4('Select a Region'),
+                        dcc.Dropdown(
+                        id='region_dd',
+                        options=[{'label':r, 'value':r} for r in region],
+                        style={'width':'300px', 'margin':'0 auto','text-align':'center'})]),
+                dbc.Col([ 
+                    html.H4('Select a Road'),
+                    dcc.Dropdown(
+                        id='camera_dd',
+                        optionHeight=50,
+                        maxHeight=150,
+                        style={'width':'300px', 'margin':'0 auto','text-align':'center'})])
+            ],
+            style={'display':'flex'})
+            ,
             html.Br(),
         ],
         
@@ -175,7 +180,7 @@ def update_camera_dd(region_dd):
         relevant_camera_options = region_camera[region_camera['Region'] == region_dd][['CameraID', 'RoadName']].values.tolist()
     
         # Create and return formatted relevant options with the same label and value
-        formatted_relevant_camera_options = [{'label':x[1]+'_'+str(x[0]), 'value':x[0]} for x in relevant_camera_options]
+        formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in relevant_camera_options]
     
     return formatted_relevant_camera_options
 

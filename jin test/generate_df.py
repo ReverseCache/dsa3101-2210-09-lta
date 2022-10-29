@@ -24,7 +24,6 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r *1000
 
-
 # Get LTA camera id and images
 
 traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
@@ -33,7 +32,8 @@ traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
 traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
 traffic_image_df['Count']=np.random.uniform(low=0, high=20, size=(len(traffic_image_df.index),)).astype(int)
 traffic_image_df['is_jam']=0
-traffic_image_df=traffic_image_df.merge(pd.read_csv('traffic_camera_region_RoadName.csv',converters={'CameraID':str}),'left','CameraID')
+traffic_image_df=traffic_image_df.merge(pd.read_csv('traffic_camera_region_roadname.csv',converters={'CameraID':str}),'left','CameraID')
+traffic_image_df['RoadName']=traffic_image_df['RoadName']+'_'+traffic_image_df['CameraID']
 
 
 # Get LTA incidents on Expressways
