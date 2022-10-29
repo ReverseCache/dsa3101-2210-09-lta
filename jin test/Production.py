@@ -96,9 +96,9 @@ app.layout = html.Div([
     html.Div(
         children=[
             dbc.Col([
-                    html.H4(id='car count'),
+                    html.H4(id='rt_car_count'),
                     html.Br(),
-                    html.H4(id='jam'),
+                    html.H4(id='rt_jam'),
                     html.Br(),
                     html.H4(id='rainfall'),
                     html.Br(),
@@ -106,7 +106,7 @@ app.layout = html.Div([
                     html.Br()]
             ),
             dbc.Col(html.Img(
-                        id='traffic image',
+                        id='traffic_image',
                         style={'height': '80%','width':'70%'}))
             
         ],
@@ -262,7 +262,7 @@ def display_metric(data):
 
 # Create a callback from the CameraID dropdown to the traffic image
 @app.callback(
-    Output("traffic image", "src"),
+    Output("traffic_image", "src"),
     Input("camera_dd", "value"))
 
 def update_image(cam_id):
@@ -274,15 +274,13 @@ def update_image(cam_id):
     if cam_id:
         traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
-        #link = traffic_image_df[traffic_image_df['CameraID'] == cam_id]
-        #link = link.iloc[0,3]
         link = traffic_image_df.loc[traffic_image_df.CameraID == str(cam_id), 'ImageLink'].values[0]
 
     return link
 
-# Create a callback from the CameraID dropdown to count
+# Create a callback from the CameraID dropdown to real time car count
 @app.callback(
-    Output("car count", "children"),
+    Output("rt_car_count", "children"),
     Input("camera_dd", "value"))
 
 def update_count(cam_id):
@@ -292,7 +290,7 @@ def update_count(cam_id):
     return f'Car count: {count}'
 
 @app.callback(
-    Output("jam", "children"),
+    Output("rt_jam", "children"),
     Input("camera_dd", "value"))
 
 def update_count(cam_id):
@@ -313,7 +311,7 @@ def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     if cam_id:
         rainfall = main_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
-    return f'rainfall in mm: {rainfall}'
+    return f'Rainfall in mm: {rainfall}'
 
 @app.callback(
     Output("incidents", "children"),
