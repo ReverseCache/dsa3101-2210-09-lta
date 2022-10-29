@@ -208,9 +208,22 @@ def update_map(cam_id):
     Input('camera_dd', 'value'))
 
 def display_plot(reg, cam_id):
-    ft1 = df2[df2.Region==reg]
-    ft2 = ft1[ft1.Id==cam_id]
-    fig = px.line(ft2, x='Time', y='Count', title='Past 30 minutes')
+    if reg and cam_id:
+        ft1 = df2[df2.Region==reg]
+        # clear the road option to view all cameras within region
+        if cam_id:
+            ft1 = ft1[ft1.Id==cam_id]
+
+    if reg:
+        ft1 = df2[df2.Region==reg]
+
+    if cam_id:
+        ft1 = df2[df2.Id==cam_id]
+
+    elif reg is None and cam_id is None:
+        ft1 = df2
+    fig = px.line(ft1, x='Time', y='Count', color='Id',
+                  title='Past 30 minutes', markers=True)
     return fig
 
 # display uploaded image
