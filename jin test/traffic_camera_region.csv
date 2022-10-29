@@ -1,88 +1,88 @@
-CameraID,Region
-1001,Central
-1002,Central
-1003,Central
-1004,Central
-1005,East
-1006,East
-1501,Central
-1502,Central
-1503,Central
-1504,Central
-1505,Central
-1701,Central
-1702,Central
-1703,Central
-1704,Central
-1705,North East
-1706,North East
-1707,Central
-1709,Central
-1711,Central
-2701,North
-2702,North
-2703,Central
-2704,North
-2705,North
-2706,North
-2707,North
-2708,North
-3702,East
-3704,Central
-3705,East
-3793,East
-3795,Central
-3796,Central
-3797,Central
-3798,Central
-4701,Central
-4702,Central
-4703,West
-4704,Central
-4705,West
-4706,West
-4707,West
-4708,West
-4709,West
-4710,West
-4712,West
-4713,West
-4714,West
-4716,West
-4798,Central
-4799,Central
-5794,East
-5795,East
-5797,Central
-5798,Central
-5799,Central
-6701,Central
-6703,Central
-6704,Central
-6705,Central
-6706,Central
-6708,West
-6710,Central
-6711,East
-6712,Central
-6713,East
-6714,West
-6715,West
-6716,West
-7791,East
-7793,East
-7794,East
-7795,East
-7796,North East
-7797,North East
-7798,North East
-8701,North
-8702,North
-8704,West
-8706,West
-9701,North
-9702,North
-9703,North
-9704,North
-9705,North
-9706,North
+CameraID,Region,roadname
+1001,Central,East Coast Parkway (ECP)
+1002,Central,Pan-Island Expressway (PIE)
+1003,Central,Pan-Island Expressway (PIE)
+1004,Central,Kallang Way Flyover
+1005,East,Kallang-Paya Lebar Expressway (KPE)
+1006,East,Kallang-Paya Lebar Expressway (KPE)
+1501,Central,Marina Coastal Expressway (MCE)
+1502,Central,Marina Coastal Expressway (MCE)
+1503,Central,Marina Coastal Expressway (MCE)
+1504,Central,Marina Coastal Expressway (MCE)
+1505,Central,Marina Coastal Expressway (MCE)
+1701,Central,Central Expressway (CTE)
+1702,Central,Central Expressway (CTE)
+1703,Central,Central Expressway (CTE)
+1704,Central,Central Expressway (CTE)
+1705,North East,Central Expressway (CTE)
+1706,North East,Central Expressway (CTE)
+1707,Central,Central Expressway (CTE)
+1709,Central,Central Expressway (CTE)
+1711,Central,Central Expressway (CTE)
+2701,North,Woodlands Causeway
+2702,North,Woodlands Checkpoint
+2703,Central,Pan-Island Expressway (PIE)
+2704,North,Bukit Timah Expressway (BKE)
+2705,North,Bukit Timah Expressway (BKE)
+2706,North,Bukit Timah Expressway (BKE)
+2707,North,Bukit Timah Expressway (BKE)
+2708,North,Bukit Timah Expressway (BKE)
+3702,East,East Coast Parkway (ECP)
+3704,Central,East Coast Parkway (ECP)
+3705,East,East Coast Parkway (ECP)
+3793,East,East Coast Parkway (ECP)
+3795,Central,East Coast Parkway (ECP)
+3796,Central,East Coast Parkway (ECP)
+3797,Central,East Coast Parkway (ECP)
+3798,Central,East Coast Parkway (ECP)
+4701,Central,Ayer Rajah Expressway (AYE)
+4702,Central,Ayer Rajah Expressway (AYE)
+4703,West,Tuas Second Link
+4704,Central,Ayer Rajah Expressway (AYE)
+4705,West,Ayer Rajah Expressway (AYE)
+4706,West,Ayer Rajah Expressway (AYE)
+4707,West,Ayer Rajah Expressway (AYE)
+4708,West,Ayer Rajah Expressway (AYE)
+4709,West,Ayer Rajah Expressway (AYE)
+4710,West,Ayer Rajah Expressway (AYE)
+4712,West,Ayer Rajah Expressway (AYE)
+4713,West,Tuas Checkpoint
+4714,West,Ayer Rajah Expressway (AYE)
+4716,West,Ayer Rajah Expressway (AYE)
+4798,Central,Sentosa Gateway
+4799,Central,Sentosa Gateway
+5794,East,Pan-Island Expressway (PIE)
+5795,East,Pan-Island Expressway (PIE)
+5797,Central,Pan-Island Expressway (PIE)
+5798,Central,Pan-Island Expressway (PIE)
+5799,Central,Pan-Island Expressway (PIE)
+6701,Central,Pan-Island Expressway (PIE)
+6703,Central,Pan-Island Expressway (PIE)
+6704,Central,Pan-Island Expressway (PIE)
+6705,Central,Pan-Island Expressway (PIE)
+6706,Central,Pan-Island Expressway (PIE)
+6708,West,Pan-Island Expressway (PIE)
+6710,Central,Pan-Island Expressway (PIE)
+6711,East,Pan-Island Expressway (PIE)
+6712,Central,Pan-Island Expressway (PIE)
+6713,East,Pan-Island Expressway (PIE)
+6714,West,Pan-Island Expressway (PIE)
+6715,West,Pan-Island Expressway (PIE)
+6716,West,Ayer Rajah Expressway (AYE)
+7791,East,Tampines Expressway (TPE)
+7793,East,Tampines Expressway (TPE)
+7794,East,Tampines Expressway (TPE)
+7795,East,Tampines Expressway (TPE)
+7796,North East,Tampines Expressway (TPE)
+7797,North East,Tampines Expressway (TPE)
+7798,North East,Tampines Expressway (TPE)
+8701,North,Kranji Expressway (KJE)
+8702,North,Kranji Expressway (KJE)
+8704,West,Kranji Expressway (KJE)
+8706,West,Kranji Expressway (KJE)
+9701,North,Seletar Expressway (SLE)
+9702,North,Seletar Expressway (SLE)
+9703,North,Seletar Expressway (SLE)
+9704,North,Seletar Expressway (SLE)
+9705,North,Seletar Expressway (SLE)
+9706,North,Seletar Expressway (SLE)
