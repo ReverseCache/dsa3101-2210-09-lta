@@ -154,7 +154,7 @@ app.layout = html.Div([
             html.Div([ 'Car count: ',
                 html.A(id='count') ]),
             html.Div([ 'Traffic jam: ',
-                html.A(id='jam') ])
+                html.A(id='tfjam') ])
             ])
                     
 ],
@@ -240,7 +240,7 @@ def display_image(data):
 # display metric from uploaded image
 @app.callback(
     Output('count', 'children'),
-    Output('jam', 'children'),
+    Output('tfjam', 'children'),
     Input('upload-data', 'filename'))
 
 def display_metric(data):
@@ -292,7 +292,7 @@ def update_count(cam_id):
     return f'Car count: {count}'
 
 @app.callback(
-    Output("car count", "children"),
+    Output("jam", "children"),
     Input("camera_dd", "value"))
 
 def update_count(cam_id):
