@@ -44,7 +44,6 @@ traffic_incidents_df=pd.DataFrame(eval(traffic_incidents_req.content)['value'])
 incidents_roads=['AYE','BKE','CTE','ECP','KJE','KPE','MCE','PIE','SLE','TPE','Sentosa','Tuas','Woodlands']
 traffic_incidents_df=traffic_incidents_df[traffic_incidents_df['Message'].apply(lambda x: any(expressway in x for expressway in incidents_roads))]
 
-
 # NEA API to get rainfall in mm
 
 weatherreq=requests.get(url='https://api.data.gov.sg/v1/environment/rainfall')
@@ -74,7 +73,7 @@ weather_df['key']=0
 nearest_incidents=traffic_image_df.merge(traffic_incidents_df,'outer','key')
 nearest_incidents['incident_distance_from_id']=(np.vectorize(haversine)(nearest_incidents['Latitude_x'],nearest_incidents['Longitude_x'],nearest_incidents['Latitude_y'],nearest_incidents['Longitude_y']))
 nearest_incidents=nearest_incidents[nearest_incidents['incident_distance_from_id']<500].sort_values('incident_distance_from_id')
-nearest_incidents=nearest_incidents[['CameraID','Message']]
+nearest_incidents=nearest_incidents[['CameraID','Message']].sort_values('CameraID')
 
 
 # Select nearest weather station for each camera id

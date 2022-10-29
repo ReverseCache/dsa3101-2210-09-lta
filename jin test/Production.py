@@ -11,7 +11,7 @@ import plotly.express as px
 
 
 
-main_df = pd.read_csv('main_df.csv',converters={'CameraID':str})
+main_df = pd.read_csv('main_df.csv')
 incidents_df=pd.read_csv('traffic_incidents.csv')
 df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
@@ -107,7 +107,8 @@ app.layout = html.Div([
                     html.Br(),
                     html.H4(id='rainfall'),
                     html.Br(),
-                    html.H4(id='incidents'),
+                    html.H4('Nearby Incidents:'),
+                    html.H5(id='incidents'),
                     html.Br()]
             ),
             dbc.Col(html.Img(
@@ -324,15 +325,17 @@ def update_rainfall(cam_id):
 
 def update_incidents(cam_id):
     incidents = 'please select a camera'
-    incident_res=''
+    incident_res=[]
     counter=1
     if cam_id:
-        incident_res+= '%s incidents nearby, '%(len(incidents_df.loc[incidents_df['CameraID']==cam_id,].index))
+        incident_res.append('%s incidents nearby, '%(len(incidents_df.loc[incidents_df['CameraID']==cam_id,].index)))
+        incident_res.append(html.Br())
         for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
             incident_res+= " %s. %s "%(counter,i)
+            incident_res.append(html.Br())
             counter += 1
         incidents=incident_res
-    return f"Nearby Incidents: {incidents}"
+    return incidents
 
 
 
