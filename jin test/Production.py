@@ -98,6 +98,8 @@ app.layout = html.Div([
             dbc.Col([
                     html.H4(id='car count'),
                     html.Br(),
+                    html.H4(id='jam'),
+                    html.Br(),
                     html.H4(id='rainfall'),
                     html.Br(),
                     html.H4(id='incidents'),
@@ -286,8 +288,22 @@ def update_image(cam_id):
 def update_count(cam_id):
     count = 'please select a camera'
     if cam_id:
-        count = df.loc[df.CameraID == cam_id, 'Count'].values[0]
+        count = main_df.loc[main_df.CameraID == cam_id, 'Count'].values[0]
     return f'Car count: {count}'
+
+@app.callback(
+    Output("car count", "children"),
+    Input("camera_dd", "value"))
+
+def update_count(cam_id):
+    jam = 'please select a camera'
+    if cam_id:
+        jam = main_df.loc[main_df.CameraID == cam_id, 'is_jam'].values[0]
+        if jam == 1:
+            jam="Yes"
+        else:
+            jam="No"
+    return f'Jam? : {jam}'
 
 @app.callback(
     Output("rainfall", "children"),
