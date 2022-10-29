@@ -18,7 +18,7 @@ df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
 fig = px.scatter_mapbox(main_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+                        hover_data={'Latitude':False, 'Longitude': False, 'roadname':True, 'Region':True, 'Count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
 fig.update_layout(mapbox_style="open-street-map")
 
@@ -36,7 +36,7 @@ geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera
 
 region = list(main_df['Region'].unique())
 cameraID = list(main_df['CameraID'].unique())
-RoadName = list(main_df['RoadName'].unique())
+RoadName = list(main_df['roadname'].unique())
 cam_road=main_df[['CameraID', 'RoadName']].values.tolist()
 
 
