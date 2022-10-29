@@ -11,7 +11,7 @@ import plotly.express as px
 
 
 
-main_df = pd.read_csv('main_df.csv')
+main_df = pd.read_csv('main_df.csv',converters={'CameraID':str})
 incidents_df=pd.read_csv('traffic_incidents.csv')
 df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
@@ -64,7 +64,7 @@ app.layout = html.Div([
     # Dropdown and map of selected camera
     html.Div(
         children=[
-            html.H2('The following section will provide a breakdown of traffic situation at the camera location, please select the region and camera.'),
+            html.H2('The following section will provide a breakdown of traffic situation at the camera location'),
             html.Br(),
             html.H3('Select a Region'),
             dcc.Dropdown(
@@ -175,7 +175,7 @@ def update_camera_dd(region_dd):
         relevant_camera_options = region_camera[region_camera['Region'] == region_dd][['CameraID', 'RoadName']].values.tolist()
     
         # Create and return formatted relevant options with the same label and value
-        formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in relevant_camera_options]
+        formatted_relevant_camera_options = [{'label':x[1]+'_'+str(x[0]), 'value':x[0]} for x in relevant_camera_options]
     
     return formatted_relevant_camera_options
 
