@@ -306,7 +306,7 @@ def update_count(cam_id):
             jam="Yes"
         else:
             jam="No"
-    return f'Jam? : {jam}'
+    return f'Jam : {jam}'
 
 @app.callback(
     Output("rainfall", "children"),
