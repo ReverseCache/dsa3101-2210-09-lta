@@ -154,14 +154,14 @@ app.layout = html.Div([
     html.Br(),
     
     html.Div([
-            html.H5('Image Uploaded:'),
+            html.H4('Image Uploaded:'),
             html.Img(id='image',
                      style={'margin': '10px', 'height': '50%', 'width': '50%'}),
             html.Br(),
             html.Div([ 'Car count: ',
-                html.A(id='count') ]),
+                html.H5(id='count') ]),
             html.Div([ 'Traffic jam: ',
-                html.A(id='tfjam') ])
+                html.H5(id='tfjam') ])
             ])
                     
 ],
