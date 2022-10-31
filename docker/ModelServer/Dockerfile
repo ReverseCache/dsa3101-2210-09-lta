@@ -1,22 +1,40 @@
-FROM tiangolo/uvicorn-gunicorn:python3.9-slim
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# Builds ultralytics/yolov5:latest-cpu image on DockerHub https://hub.docker.com/r/ultralytics/yolov5
+# Image is CPU-optimized for ONNX, OpenVINO and PyTorch YOLOv5 deployments
 
-LABEL maintainer="team-erc"
+# Start FROM Ubuntu image https://hub.docker.com/_/ubuntu
+FROM ubuntu:latest
 
-ENV WORKERS_PER_CORE=4 
-ENV MAX_WORKERS=24
-ENV LOG_LEVEL="warning"
-ENV TIMEOUT="200"
+# Install linux packages
+RUN apt-get update
+RUN apt-get install -y python3 python3-venv python3-pip
+# libgl1-mesa-glx libglib2.0-0 libpython3.8-dev
+# RUN alias python=python3
 
-RUN mkdir /yolov5-fastapi
+# Create working directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
 
-COPY requirements.txt /yolov5-fastapi
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY . /yolov5-fastapi
-
-WORKDIR /yolov5-fastapi
-
+# Install pip packages
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-EXPOSE 8000
+# Copy contents
+# COPY . /usr/src/app  (issues as not a .git directory)
+COPY model ./
+COPY yolov5 ./
+COPY main.py ./
+COPY segmentation.py ./
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python3" , "./main.py"]
+# Usage Examples -------------------------------------------------------------------------------------------------------
+
+# Build and Push
+# t=ultralytics/yolov5:latest-cpu && sudo docker build -f utils/docker/Dockerfile-cpu -t $t . && sudo docker push $t
+
+# Pull and Run
+# t=ultralytics/yolov5:latest-cpu && sudo docker pull $t && sudo docker run -it --ipc=host -v "$(pwd)"/datasets:/usr/src/datasets $t

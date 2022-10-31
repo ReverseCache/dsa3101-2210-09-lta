@@ -2,7 +2,7 @@ import json
 from urllib.parse import urlparse
 import httplib2 as http  # External library
 
-import torch
+# import torch
 
 
 from threading import Timer
@@ -45,7 +45,7 @@ def get_json(path):
 
 
 def payload():
-    use_cuda = torch.cuda.is_available()
+    # use_cuda = torch.cuda.is_available()
     # if (use_cuda):
     #     # GPU accleration
     #     import cudf as pd
@@ -151,16 +151,15 @@ class RepeatTimer(Timer):
 
 if __name__ == "__main__":
 
+    
     def driver():
         ltaDump_json, nearest_incidents_json = payload()
-
         credentials = pika.PlainCredentials("guest", "guest")
 
         connection = pika.BlockingConnection(
             pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
         )
         channel = connection.channel()
-
         # Api to Model queue
         channel.queue_declare(queue='ApiModelQ')
 
@@ -179,8 +178,9 @@ if __name__ == "__main__":
 
         connection.close()
 
-    timer = RepeatTimer(1, driver)
-    timer.start()
-    # Runs hundred iterations before service shuts down
-    time.sleep(300*100)
-    timer.cancel()
+    for i in range(100):
+        timer = RepeatTimer(1, driver)
+        timer.start()
+        # Runs hundred iterations before service shuts down
+        time.sleep(30)
+        timer.cancel()

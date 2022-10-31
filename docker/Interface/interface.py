@@ -1,5 +1,6 @@
 import pika
 import json
+import time
 
 
 def callbackONE(ch, method, properties, body):
@@ -27,24 +28,30 @@ def callbackONE(ch, method, properties, body):
 
     except Exception as e:
         print("failed to send message")
-        print(e.message)
+        print(str(e))
 
 if __name__ == "__main__":
     credentials = pika.PlainCredentials("guest", "guest")
+    while True:
+        try:
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+            )
+            break
+        except Exception as e:
+            print(str(e))
+            time.sleep(10)
 
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-    )
     channel = connection.channel()
 
     channel.queue_declare(queue='ClientInterfaceQ')
 
-    channel.basic_consume(callbackONE, queue='ClientInterfaceQ', no_ack=True)
+    channel.basic_consume(queue='ClientInterfaceQ', on_message_callback = callbackONE, auto_ack=True)
 
     channel.start_consuming()
 
     channel.queue_declare(queue='InterfaceModelQ')
 
-    channel.basic_consume(callbackONE, queue='InterfaceModelQ', no_ack=True)
+    channel.basic_consume(queue='InterfaceModelQ', on_message_callback = callbackONE, auto_ack=True)
 
     channel.start_consuming()

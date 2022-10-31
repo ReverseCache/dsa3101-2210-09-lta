@@ -37,6 +37,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(e.message)
 
-    channel.basic_consume(callbackIncidents, queue='ApiFileQ', no_ack=True)
+    channel.basic_consume(queue='ApiFileQ', on_message_callback = callbackIncidents, auto_ack=True)
 
     channel.start_consuming()
