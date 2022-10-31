@@ -12,6 +12,8 @@ import torch
 
 from threading import Timer
 
+import pika
+
 
 def get_json(path):
     # Authentication parameters
@@ -122,10 +124,38 @@ if __name__ == "__main__":
 
     def driver():
         traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
-        requests.post("http://modelservice:8000", traffic_images_json)
-        requests.post("http://fileservice:4321", traffic_speed_json)
-        requests.post("http://fileservice:4321", traffic_incidents_json)
-        requests.post("http://fileservice:4321", new_weather_json)
+
+        credentials = pika.PlainCredentials("guest", "guest")
+
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+        )
+        channel = connection.channel()
+
+        # Fileservice dumps
+        channel.queue_declare(queue='file_server')
+
+        message = json.dumps(traffic_speed_json)
+        channel.basic_publish(
+            exchange="", routing_key="file_server", body=message)
+        print(" [x] Sent traffic speed data to RabbitMQ")
+
+        message = json.dumps(traffic_incidents_json)
+        channel.basic_publish(
+            exchange="", routing_key="file_server", body=message)
+        print(" [x] Sent traffic incidents data to RabbitMQ")
+
+        message = json.dumps(new_weather_json)
+        channel.basic_publish(
+            exchange="", routing_key="file_server", body=message)
+        print(" [x] Sent new weather data to RabbitMQ")
+
+        channel.queue_declare(queue='model_server')
+        message = json.dumps(traffic_images_json)
+        channel.basic_publish(
+            exchange="", routing_key="model_server", body=message)
+        print(" [x] Sent traffic image data to RabbitMQ")
+        connection.close()
 
     timer = RepeatTimer(300, driver)
     timer.start()

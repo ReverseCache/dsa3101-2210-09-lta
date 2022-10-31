@@ -12,6 +12,7 @@ services:
   #             capabilities: [gpu]
   rabbitmq:
     hostname: rabbit
+    container_name: rabbit
     image: "rabbitmq:3-management"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBIT_User}
@@ -45,7 +46,7 @@ services:
       - bridge-net
     # depends_on:
     #   - gpu_test
-    
+
   fileServer:
     hostname: fileservice
     container_name: fileservice
