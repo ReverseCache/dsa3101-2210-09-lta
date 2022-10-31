@@ -17,9 +17,6 @@ def runInParallel(*fns):
         p.join()
 
 
-runInParallel(func1, func2)
-
-
 def FileServer():
     PORT = 4321
     httpd = socketserver.TCPServer(
