@@ -75,13 +75,6 @@ def payload():
     traffic_image_req = requests.get(
         url=traffic_image_url, headers=headers_val)
     traffic_image_df = pd.DataFrame(eval(traffic_image_req.content)['value'])
-    traffic_image_df['Count'] = np.random.uniform(
-        low=0, high=20, size=(len(traffic_image_df.index),)).astype(int)
-    traffic_image_df['is_jam'] = 0
-    traffic_image_df = traffic_image_df.merge(pd.read_csv(
-        'traffic_camera_region_roadname.csv', converters={'CameraID': str}), 'left', 'CameraID')
-    traffic_image_df['RoadName'] = traffic_image_df['RoadName'] + \
-        '_'+traffic_image_df['CameraID']
 
     # Get LTA incidents on Expressways
 
@@ -134,7 +127,6 @@ def payload():
         'CameraID', 'Message']].sort_values('CameraID')
 
     # Select nearest weather station for each camera id
-
     final_df = traffic_image_df.merge(weather_df, 'outer', 'key')
     final_df['distance_from_id'] = (np.vectorize(haversine)(
         final_df['Latitude'], final_df['Longitude'], final_df['latitude'], final_df['longitude']))
@@ -168,24 +160,22 @@ if __name__ == "__main__":
         )
         channel = connection.channel()
 
-        # Fileservice dumps
-        channel.queue_declare(queue='file_server')
+        # Api to Model queue
+        channel.queue_declare(queue='ApiModelQ')
 
         message = json.dumps(ltaDump_json)
         channel.basic_publish(
-            exchange="", routing_key="file_server", body=message)
+            exchange="", routing_key="ApiModelQ", body=message)
         print(" [x] Sent ltaDump json to RabbitMQ")
+
+        # Api to File queue
+        channel.queue_declare(queue='ApiFileQ')
 
         message = json.dumps(nearest_incidents_json)
         channel.basic_publish(
-            exchange="", routing_key="file_server", body=message)
+            exchange="", routing_key="ApiFileQ", body=message)
         print(" [x] Sent nearest incidents json to RabbitMQ")
 
-        channel.queue_declare(queue='model_server')
-        message = json.dumps(traffic_images_json)
-        channel.basic_publish(
-            exchange="", routing_key="model_server", body=message)
-        print(" [x] Sent traffic image data to RabbitMQ")
         connection.close()
 
     timer = RepeatTimer(300, driver)
