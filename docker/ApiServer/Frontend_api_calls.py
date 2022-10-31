@@ -143,23 +143,22 @@ def payload():
     return ltaDump_json, nearest_incidents_json
 
 
-class RepeatTimer(Timer):
-    def run(self):
-        while not self.finished.wait(self.interval):
-            self.function(*self.args, **self.kwargs)
+# class RepeatTimer(Timer):
+#     def run(self):
+#         while not self.finished.wait(self.interval):
+#             self.function(*self.args, **self.kwargs)
 
 
 if __name__ == "__main__":
+    credentials = pika.PlainCredentials("guest", "guest")
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+    )
+    channel = connection.channel()
 
-    
-    def driver():
+    def driver(channel):
         ltaDump_json, nearest_incidents_json = payload()
-        credentials = pika.PlainCredentials("guest", "guest")
 
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-        )
-        channel = connection.channel()
         # Api to Model queue
         channel.queue_declare(queue='ApiModelQ')
 
@@ -176,11 +175,11 @@ if __name__ == "__main__":
             exchange="", routing_key="ApiFileQ", body=message)
         print(" [x] Sent nearest incidents json to RabbitMQ")
 
-        connection.close()
-
     for i in range(100):
-        timer = RepeatTimer(1, driver)
-        timer.start()
+        # timer = RepeatTimer(10, driver(channel))
+        # timer.start()
         # Runs hundred iterations before service shuts down
+        driver(channel)
         time.sleep(30)
-        timer.cancel()
+        # timer.cancel()
+    connection.close()
