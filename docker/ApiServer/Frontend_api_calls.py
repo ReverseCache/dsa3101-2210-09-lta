@@ -6,6 +6,7 @@ import torch
 
 
 from threading import Timer
+import time
 
 import pika
 
@@ -17,7 +18,7 @@ import urllib.request
 
 # Function to calculate distance given latitude and longitude
 
-from numpy import radians, cos, sin, asin, sqrt
+from math import radians, cos, sin, asin, sqrt
 
 
 def get_json(path):
@@ -45,14 +46,14 @@ def get_json(path):
 
 def payload():
     use_cuda = torch.cuda.is_available()
-    if (use_cuda):
-        # GPU accleration
-        import cudf as pd
-        print("GPU acceleration via rapids")
-    else:
-        # CPU
-        import pandas as pd
-        print("CPU fall back")
+    # if (use_cuda):
+    #     # GPU accleration
+    #     import cudf as pd
+    #     print("GPU acceleration via rapids")
+    # else:
+    #     # CPU
+    #     import pandas as pd
+    #     print("CPU fall back")
 
     def haversine(lon1, lat1, lon2, lat2):
 
@@ -131,7 +132,7 @@ def payload():
     final_df['distance_from_id'] = (np.vectorize(haversine)(
         final_df['Latitude'], final_df['Longitude'], final_df['latitude'], final_df['longitude']))
     final_df = final_df.sort_values('distance_from_id').groupby('CameraID').head(
-        1)[['CameraID', 'Latitude', 'Longitude', 'Region', 'rainfall', 'ImageLink', 'RoadName', 'Count', 'is_jam']]
+        1)[['CameraID', 'Latitude', 'Longitude', 'rainfall', 'ImageLink']]
     final_df = final_df.sort_values('CameraID').reset_index(drop=True)
 
     # Convert dataframes to CSV to be used in frontend
@@ -178,7 +179,7 @@ if __name__ == "__main__":
 
         connection.close()
 
-    timer = RepeatTimer(300, driver)
+    timer = RepeatTimer(1, driver)
     timer.start()
     # Runs hundred iterations before service shuts down
     time.sleep(300*100)

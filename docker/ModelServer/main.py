@@ -1,39 +1,17 @@
 import base64
-from fastapi import Body, FastAPI, File
 from segmentation import get_count_model, get_congestion_model, get_image_from_bytes
-from starlette.responses import Response
 import io
 from PIL import Image
 import json
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import requests
+import pika
 
 count_model = get_count_model()
 congestion_model = get_congestion_model()
 
-app = FastAPI(
-    title="ModelServer",
-    description="Runs the model and get predictions",
-    version="0.0.1",
-)
-
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "*"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-def get_prediction(file: bytes = File(...)):
+#def get_prediction(file: bytes = File(...)):
+def get_prediction(file):
     input_image = get_image_from_bytes(file)
     count_result = count_model(input_image)
     count_result.render()
@@ -60,8 +38,8 @@ def get_prediction(file: bytes = File(...)):
                       "congestion_img_strings": congestion_img_strings}
     return output_payload
 
-
-def get_predictions(input_payload: dict = Body(...)):
+#def get_predictions(input_payload: dict = Body(...)):
+def get_predictions(input_payload):
     image_links = list(map(lambda x: x["ImageLink"], input_payload["value"]))
     input_images = []
     camera_ids = []
