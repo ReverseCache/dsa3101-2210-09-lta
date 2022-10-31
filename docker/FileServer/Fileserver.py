@@ -22,7 +22,7 @@ if __name__ == "__main__":
     )
     channel = connection.channel()
 
-    channel.queue_declare(queue='ApiModelQ')
+    channel.queue_declare(queue='ApiFileQ')
 
     def saveIncidentsBody(serialised_message):
         with open('incidents.json', 'w', encoding='utf-8') as f:
@@ -37,5 +37,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(e.message)
 
-    channel.basic_consume(callbackIncidents, queue='ApiModelQ', no_ack=True)
+    channel.basic_consume(callbackIncidents, queue='ApiFileQ', no_ack=True)
+
     channel.start_consuming()
