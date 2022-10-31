@@ -12,6 +12,5 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
 
-COPY Messenger.py ./
 COPY Fileserver.py ./
-CMD ["python3" , "./Fileserver.py"] && ["python3" , "./Messenger.py"]
+CMD ["python3" , "./Fileserver.py"] 
