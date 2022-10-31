@@ -1,8 +1,3 @@
-import requests
-import numpy as np
-import urllib.request
-
-
 import json
 from urllib.parse import urlparse
 import httplib2 as http  # External library
@@ -13,6 +8,16 @@ import torch
 from threading import Timer
 
 import pika
+
+import requests
+import pandas as pd
+import numpy as np
+import urllib.request
+
+
+# Function to calculate distance given latitude and longitude
+
+from numpy import radians, cos, sin, asin, sqrt
 
 
 def get_json(path):
@@ -49,69 +54,100 @@ def payload():
         import pandas as pd
         print("CPU fall back")
 
-    # # Traffic Images
-    # traffic_images_df = pd.DataFrame(get_json("Traffic-Imagesv2")["value"])
+    def haversine(lon1, lat1, lon2, lat2):
 
-    # Traffic Speed
-    traffic_speed_df = pd.DataFrame(get_json("TrafficSpeedBandsv2")["value"])
+        # convert decimal degrees to radians
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
-    # Traffic incidents
-    traffic_incidents_df = pd.DataFrame(get_json("TrafficIncidents")["value"])
+        # haversine formula
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+        r = 6371
+        return c * r * 1000
 
-    def location_splitter(location):
-        location = location.split(' ')
-        return location[0], location[1], location[2], location[3]
+    # Get LTA camera id and images
 
-    traffic_speed_df['start_latitude'], traffic_speed_df['start_longitude'], traffic_speed_df['end_latitude'], traffic_speed_df['end_longitude'] = np.vectorize(
-        location_splitter)(traffic_speed_df['Location'])
+    traffic_image_url = 'http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
+    headers_val = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA=='}
+    traffic_image_req = requests.get(
+        url=traffic_image_url, headers=headers_val)
+    traffic_image_df = pd.DataFrame(eval(traffic_image_req.content)['value'])
+    traffic_image_df['Count'] = np.random.uniform(
+        low=0, high=20, size=(len(traffic_image_df.index),)).astype(int)
+    traffic_image_df['is_jam'] = 0
+    traffic_image_df = traffic_image_df.merge(pd.read_csv(
+        'traffic_camera_region_roadname.csv', converters={'CameraID': str}), 'left', 'CameraID')
+    traffic_image_df['RoadName'] = traffic_image_df['RoadName'] + \
+        '_'+traffic_image_df['CameraID']
 
-    # Weather APi
+    # Get LTA incidents on Expressways
+
+    traffic_incidents_url = 'http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents'
+    traffic_incidents_req = requests.get(
+        url=traffic_incidents_url, headers=headers_val)
+    traffic_incidents_df = pd.DataFrame(
+        eval(traffic_incidents_req.content)['value'])
+    incidents_roads = ['AYE', 'BKE', 'CTE', 'ECP', 'KJE', 'KPE',
+                       'MCE', 'PIE', 'SLE', 'TPE', 'Sentosa', 'Tuas', 'Woodlands']
+    traffic_incidents_df = traffic_incidents_df[traffic_incidents_df['Message'].apply(
+        lambda x: any(expressway in x for expressway in incidents_roads))]
+
+    # NEA API to get rainfall in mm
+
     weatherreq = requests.get(
         url='https://api.data.gov.sg/v1/environment/rainfall')
+    weather_df = pd.DataFrame(eval(weatherreq.content)['metadata']['stations'])
 
-    new_weather_df = pd.DataFrame(eval(weatherreq.content)[
-                                  'metadata']['stations'])
-
-    new_weather_df['latitude'] = new_weather_df['location'].apply(
+    weather_df['latitude'] = weather_df['location'].apply(
         lambda x: x['latitude'])
-    new_weather_df['longitude'] = new_weather_df['location'].apply(
+    weather_df['longitude'] = weather_df['location'].apply(
         lambda x: x['longitude'])
-    new_weather_df['timestamp'] = eval(weatherreq.content)[
-        'items'][0]['timestamp']
-    new_weather_df['timestamp'] = pd.to_datetime(new_weather_df['timestamp'])
+    weather_df['timestamp'] = eval(weatherreq.content)['items'][0]['timestamp']
+    weather_df['timestamp'] = pd.to_datetime(weather_df['timestamp'])
 
     station_rainfall = pd.DataFrame(eval(weatherreq.content)[
-                                    'items'][0]['readings']).rename(columns={'value': 'rainfall in mm'})
+                                    'items'][0]['readings']).rename(columns={'value': 'rainfall'})
 
-    new_weather_df = new_weather_df.merge(
+    weather_df = weather_df.merge(
         station_rainfall, how='left', left_on='id', right_on='station_id')
-    new_weather_df = new_weather_df.drop(
+    weather_df = weather_df.drop(
         ['id', 'device_id', 'station_id', 'location'], axis=1)
 
-    onemapTokenAPIResponse = requests.post('https://developers.onemap.sg/privateapi/auth/post/getToken', json={
-        'email': 'leejin@u.nus.edu', 'password': 'Whysohardtochange123!'})  # .content
-    onemapAPItoken = eval(onemapTokenAPIResponse.content)['access_token']
-    onemapResponse = requests.get('https://developers.onemap.sg/privateapi/commonsvc/revgeocode?location=%s,%s&token=%s&buffer=100&addressType=all' %
-                                  (str(1.32311), str(103.76714), onemapAPItoken))
+    # Calculations and table joining
 
-    def roadnamegrabber(name, latitude, longitude):
-        if name[0] == 'S' and len(name) < 5:
-            tempResponse = requests.get('https://developers.onemap.sg/privateapi/commonsvc/revgeocode?location=%s,%s&token=%s&buffer=100&addressType=all' %
-                                        (str(latitude), str(longitude), onemapAPItoken))
-            name = pd.DataFrame(eval(tempResponse.content)[
-                                'GeocodeInfo'])['ROAD'].mode()[0]
-        return name
+    traffic_image_df['key'] = 0
+    traffic_incidents_df['key'] = 0
+    weather_df['key'] = 0
 
-    new_weather_df['name'] = np.vectorize(roadnamegrabber)(
-        new_weather_df['name'], new_weather_df['latitude'], new_weather_df['longitude'])
+    # Select incidents that occur within 500m of a camera location
 
-    # Requiured Payload
-    traffic_images_json = get_json("Traffic-Imagesv2")
-    traffic_speed_json = traffic_speed_df.to_json(orient='records')
-    traffic_incidents_json = traffic_incidents_df.to_json(orient='records')
-    new_weather_json = new_weather_df.to_json(orient='records')
+    nearest_incidents = traffic_image_df.merge(
+        traffic_incidents_df, 'outer', 'key')
+    nearest_incidents['incident_distance_from_id'] = (np.vectorize(haversine)(
+        nearest_incidents['Latitude_x'], nearest_incidents['Longitude_x'], nearest_incidents['Latitude_y'], nearest_incidents['Longitude_y']))
+    nearest_incidents = nearest_incidents[nearest_incidents['incident_distance_from_id'] < 500].sort_values(
+        'incident_distance_from_id')
+    nearest_incidents = nearest_incidents[[
+        'CameraID', 'Message']].sort_values('CameraID')
 
-    return traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json
+    # Select nearest weather station for each camera id
+
+    final_df = traffic_image_df.merge(weather_df, 'outer', 'key')
+    final_df['distance_from_id'] = (np.vectorize(haversine)(
+        final_df['Latitude'], final_df['Longitude'], final_df['latitude'], final_df['longitude']))
+    final_df = final_df.sort_values('distance_from_id').groupby('CameraID').head(
+        1)[['CameraID', 'Latitude', 'Longitude', 'Region', 'rainfall', 'ImageLink', 'RoadName', 'Count', 'is_jam']]
+    final_df = final_df.sort_values('CameraID').reset_index(drop=True)
+
+    # Convert dataframes to CSV to be used in frontend
+
+    ltaDump_json = final_df.to_json(orient='records')
+    nearest_incidents_json = nearest_incidents.to_json(orient='records')
+
+    return ltaDump_json, nearest_incidents_json
 
 
 class RepeatTimer(Timer):
@@ -123,7 +159,7 @@ class RepeatTimer(Timer):
 if __name__ == "__main__":
 
     def driver():
-        traffic_images_json, traffic_speed_json, traffic_incidents_json, new_weather_json = payload()
+        ltaDump_json, nearest_incidents_json = payload()
 
         credentials = pika.PlainCredentials("guest", "guest")
 
@@ -135,20 +171,15 @@ if __name__ == "__main__":
         # Fileservice dumps
         channel.queue_declare(queue='file_server')
 
-        message = json.dumps(traffic_speed_json)
+        message = json.dumps(ltaDump_json)
         channel.basic_publish(
             exchange="", routing_key="file_server", body=message)
-        print(" [x] Sent traffic speed data to RabbitMQ")
+        print(" [x] Sent ltaDump json to RabbitMQ")
 
-        message = json.dumps(traffic_incidents_json)
+        message = json.dumps(nearest_incidents_json)
         channel.basic_publish(
             exchange="", routing_key="file_server", body=message)
-        print(" [x] Sent traffic incidents data to RabbitMQ")
-
-        message = json.dumps(new_weather_json)
-        channel.basic_publish(
-            exchange="", routing_key="file_server", body=message)
-        print(" [x] Sent new weather data to RabbitMQ")
+        print(" [x] Sent nearest incidents json to RabbitMQ")
 
         channel.queue_declare(queue='model_server')
         message = json.dumps(traffic_images_json)
