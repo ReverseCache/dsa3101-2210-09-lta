@@ -86,8 +86,12 @@ def payload():
         eval(traffic_incidents_req.content)['value'])
     incidents_roads = ['AYE', 'BKE', 'CTE', 'ECP', 'KJE', 'KPE',
                        'MCE', 'PIE', 'SLE', 'TPE', 'Sentosa', 'Tuas', 'Woodlands']
-    traffic_incidents_df = traffic_incidents_df[traffic_incidents_df['Message'].apply(
-        lambda x: any(expressway in x for expressway in incidents_roads))]
+    # to catch empty df
+    try:
+        traffic_incidents_df = traffic_incidents_df[traffic_incidents_df['Message'].apply(
+            lambda x: any(expressway in x for expressway in incidents_roads))]
+    except:
+        pass
 
     # NEA API to get rainfall in mm
 
@@ -120,12 +124,17 @@ def payload():
 
     nearest_incidents = traffic_image_df.merge(
         traffic_incidents_df, 'outer', 'key')
-    nearest_incidents['incident_distance_from_id'] = (np.vectorize(haversine)(
-        nearest_incidents['Latitude_x'], nearest_incidents['Longitude_x'], nearest_incidents['Latitude_y'], nearest_incidents['Longitude_y']))
-    nearest_incidents = nearest_incidents[nearest_incidents['incident_distance_from_id'] < 500].sort_values(
-        'incident_distance_from_id')
-    nearest_incidents = nearest_incidents[[
-        'CameraID', 'Message']].sort_values('CameraID')
+
+    # to catch empty df
+    try:
+        nearest_incidents['incident_distance_from_id'] = (np.vectorize(haversine)(
+            nearest_incidents['Latitude_x'], nearest_incidents['Longitude_x'], nearest_incidents['Latitude_y'], nearest_incidents['Longitude_y']))
+        nearest_incidents = nearest_incidents[nearest_incidents['incident_distance_from_id'] < 500].sort_values(
+            'incident_distance_from_id')
+        nearest_incidents = nearest_incidents[[
+            'CameraID', 'Message']].sort_values('CameraID')
+    except:
+        pass
 
     # Select nearest weather station for each camera id
     final_df = traffic_image_df.merge(weather_df, 'outer', 'key')
