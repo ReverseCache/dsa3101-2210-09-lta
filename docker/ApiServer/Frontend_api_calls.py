@@ -150,11 +150,17 @@ def payload():
 
 
 if __name__ == "__main__":
-    credentials = pika.PlainCredentials("guest", "guest")
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-    )
-    channel = connection.channel()
+    while True:
+        try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+            )
+            channel = connection.channel()
+            break
+        except Exception as e:
+            print("Waiting for connection")
+            time.sleep(5)
 
     def driver(channel):
         ltaDump_json, nearest_incidents_json = payload()
@@ -180,6 +186,6 @@ if __name__ == "__main__":
         # timer.start()
         # Runs hundred iterations before service shuts down
         driver(channel)
-        time.sleep(30)
+        time.sleep(300)
         # timer.cancel()
     connection.close()
