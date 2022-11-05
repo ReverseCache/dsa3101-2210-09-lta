@@ -8,6 +8,7 @@ FROM ubuntu:latest
 # Install linux packages
 RUN apt-get update
 RUN apt-get install -y python3 python3-venv python3-pip
+RUN apt-get install ffmpeg libsm6 libxext6  -y
 # libgl1-mesa-glx libglib2.0-0 libpython3.8-dev
 # RUN alias python=python3
 
@@ -25,10 +26,7 @@ RUN pip install -r requirements.txt
 
 # Copy contents
 # COPY . /usr/src/app  (issues as not a .git directory)
-ADD model ./model
-ADD yolov5 ./yolov5
-COPY main.py ./
-COPY segmentation.py ./
+COPY . ./
 
 CMD ["python3" , "./main.py"]
 # Usage Examples -------------------------------------------------------------------------------------------------------
