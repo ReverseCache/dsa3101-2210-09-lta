@@ -19,6 +19,10 @@ def get_prediction(file):
     congestion_result = congestion_model(input_image)
     congestion_result.render()
 
+    count_vehicles = list(map(len, count_result.pandas().xyxy))
+    congestions = list(map(lambda x: min(
+            sum(x["name"] == "congested"), 1), congestion_result.pandas().xyxy))
+
     bytes_io = io.BytesIO()
     img_base64 = Image.fromarray(count_result.ims[0])
     img_base64.save(bytes_io, format="jpeg")
@@ -35,7 +39,9 @@ def get_prediction(file):
     # return Response(content = io.BytesIO(base64.b64decode(img_string)).getvalue(), media_type = "image/jpeg")
 
     output_payload = {"count_img_strings": count_img_strings,
-                      "congestion_img_strings": congestion_img_strings}
+                      "congestion_img_strings": congestion_img_strings,
+                      "count": count_vehicles,
+                      "congestion": congestions}
     return output_payload
 
 #def get_predictions(input_payload: dict = Body(...)):
