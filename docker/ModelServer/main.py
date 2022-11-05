@@ -1,4 +1,5 @@
 import base64
+from ssl import CHANNEL_BINDING_TYPES
 from segmentation import get_count_model, get_congestion_model, get_image_from_bytes
 import io
 from PIL import Image
@@ -6,6 +7,7 @@ import json
 from datetime import datetime
 import requests
 import pika
+import time
 
 count_model = get_count_model()
 congestion_model = get_congestion_model()
@@ -108,24 +110,15 @@ def callback87(ch, method, properties, body):
     try:
         output_payload = get_predictions(body)
 
-        credentials = pika.PlainCredentials("guest", "guest")
-
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-        )
-        channel = connection.channel()
-        # Api to Model queue
-        channel.queue_declare(queue='ModelFileQ')
-
         message = json.dumps(output_payload)
         channel.basic_publish(
             exchange="", routing_key="ModelFileQ", body=message)
+        
         print(" [x] Sent prediction87S json to RabbitMQ")
-        connection.close()
 
     except Exception as e:
         print("failed to send message")
-        print(e.message)
+        print(str(e))
 
 
 def callbackONE(ch, method, properties, body):
@@ -136,42 +129,37 @@ def callbackONE(ch, method, properties, body):
         '''
         output_payload = get_prediction(body)
 
-        credentials = pika.PlainCredentials("guest", "guest")
-
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-        )
-        channel = connection.channel()
-        # Api to Model queue
-        channel.queue_declare(queue='ModelInterfaceQ')
-
         message = json.dumps(output_payload)
         channel.basic_publish(
             exchange="", routing_key="ModelInterfaceQ", body=message)
         print(" [x] Sent predictionONE json to RabbitMQ")
-        connection.close()
 
     except Exception as e:
         print("failed to send message")
-        print(e.message)
+        print(str(e))
+
 
 
 if __name__ == "__main__":
-    credentials = pika.PlainCredentials("guest", "guest")
-
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-    )
-    channel = connection.channel()
+    while True:
+        try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+            )
+            channel = connection.channel()
+            break
+        
+        except Exception as e:
+            print("Waiting for connection")
+            time.sleep(5)
 
     channel.queue_declare(queue='ApiModelQ')
-
-    channel.basic_consume(callback87, queue='ApiModelQ', no_ack=True)
-
-    channel.start_consuming()
-
     channel.queue_declare(queue='InterfaceModelQ')
+    channel.queue_declare(queue='ModelInterfaceQ')
+    channel.queue_declare(queue='ModelFileQ')
 
-    channel.basic_consume(callbackONE, queue='InterfaceModelQ', no_ack=True)
+    channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
+    channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
 
     channel.start_consuming()
