@@ -25,8 +25,8 @@ RUN pip install -r requirements.txt
 
 # Copy contents
 # COPY . /usr/src/app  (issues as not a .git directory)
-COPY model ./
-COPY yolov5 ./
+ADD model ./model
+ADD yolov5 ./yolov5
 COPY main.py ./
 COPY segmentation.py ./
 
