@@ -194,7 +194,7 @@ if __name__ == "__main__":
         channel.basic_publish(
             exchange="", routing_key="ApiFileQ", body=message) #success
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
-    print("aaa")
+    # print("aaa")
 
     # driver(channel)
 
