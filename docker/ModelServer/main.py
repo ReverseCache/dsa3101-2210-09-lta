@@ -178,7 +178,8 @@ if __name__ == "__main__":
             print(4)
             channel.start_consuming()
             print(5)
-        
+
+    
         except Exception as e:
             print("Waiting for connection")
             time.sleep(5)

@@ -4,6 +4,7 @@ import io
 
 def get_count_model():
     model = torch.hub.load('yolov5', 'custom', path='model/count_best.pt', source='local')
+    print("count")
     return model
 
 def get_congestion_model():

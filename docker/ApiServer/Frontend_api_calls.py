@@ -196,7 +196,6 @@ if __name__ == "__main__":
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
     print("aaa")
 
-
     driver(channel)
 
     for i in range(100):
