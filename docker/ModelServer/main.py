@@ -105,24 +105,24 @@ CALLBACKS
 '''
 
 
-def callback87(ch, method, properties, body):
-    print('CLIFTON COKCKCKKCKCKC')
-    # print(" [x] Received %r" % body)
-    # try:
-    #     output_payload = get_predictions(body)
 
-    #     message = json.dumps(output_payload)
-    #     channel.basic_publish(
-    #         exchange="", routing_key="ModelFileQ", body=message)
+def callback87(channel, method, properties, body):
+    print(" [x] Received %r" % body) #called alr
+    try:
+        output_payload = get_predictions(body)
+
+        message = json.dumps(output_payload)
+        channel.basic_publish(
+            exchange="", routing_key="ModelFileQ", body=message)
         
-    #     print(" [x] Sent prediction87S json to RabbitMQ")
+        print(" [x] Sent prediction87S json to RabbitMQ")
 
-    # except Exception as e:
-    #     print("failed to send message")
-    #     print(str(e))
+    except Exception as e:
+        print("failed to send message")
+        print(str(e))
 
 
-def callbackONE(ch, method, properties, body):
+def callbackONE(channel, method, properties, body):
     print(" [x] Received %r" % body)
     try:
         '''
@@ -141,30 +141,67 @@ def callbackONE(ch, method, properties, body):
 
 
 
-if __name__ == "__main__":
-    while True:
+
+
+# if __name__ == "__main__":
+#     while True:
+#         try:
+#             credentials = pika.PlainCredentials("guest", "guest")
+#             connection = pika.BlockingConnection(
+#                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+#             )
+#             channel = connection.channel()
+#             break
         
-        try:
-            credentials = pika.PlainCredentials("guest", "guest")
-            connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-            )
-            channel = connection.channel()
-            break
+#         except Exception as e:
+#             print("Waiting for connection")
+#             time.sleep(5)
 
-        except Exception as e:
-            print("Waiting for connection")
-            time.sleep(5)
+#     channel.queue_declare(queue='ApiModelQ')
+#     channel.queue_declare(queue='InterfaceModelQ')
+#     channel.queue_declare(queue='ModelInterfaceQ')
+#     channel.queue_declare(queue='ModelFileQ')
 
+#     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
+#     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
+
+#     channel.start_consuming()
+
+def on_open(connection):
+    connection.channel(on_open_callback=on_channel_open)
+
+def on_channel_open(channel):
     channel.queue_declare(queue='ApiModelQ')
     channel.queue_declare(queue='InterfaceModelQ')
     channel.queue_declare(queue='ModelInterfaceQ')
     channel.queue_declare(queue='ModelFileQ')
 
     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
-    print("CLIFTON CONSUME DRUGS")
-    channel.start_consuming()
-    print("CLIFTON GLUCK222 90900000")
     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
-    channel.start_consuming()
+    print("CLIFTON CONSUME DRUGS")
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000), #added hearbeat
+                on_open_callback = on_open
+            )
+            channel = connection.channel()
+            break
+        
+        except Exception as e:
+            print("Waiting for connection")
+            time.sleep(5)
+
+    parameters = pika.URLParameters('amqp://guest:guest@localhost:5672/%2F')
+    connection = pika.SelectConnection(parameters=parameters,
+                                    on_open_callback=on_open)
+
+    try:
+        connection.ioloop.start()
+    except KeyboardInterrupt:
+        connection.close()
 

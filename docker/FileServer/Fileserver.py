@@ -19,12 +19,12 @@ def Messenger():
     print("Starting Connection on FileServer!")
     Flag = True
     while Flag:
-        try:
+        try: #it calls for 2 times then it reach channels success
             print("Trying to connect with Rabbit")
             credentials = pika.PlainCredentials("guest", "guest")
             print("Credentials Success")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000) #added heartbeat
             )
             print("Connection Success")
             channel = connection.channel()
@@ -34,24 +34,24 @@ def Messenger():
             print("Waiting for connection")
             time.sleep(5)
 
-    print("Connected on FileServer!")
-    channel.queue_declare(queue='ApiFileQ')
+    print("Connected on FileServer!") #called alr
+    channel.queue_declare(queue='ApiFileQ') #called alr
 
     print("Declared Queue as \"ApiFileQ\" on FileServer!")
 
-    def saveIncidentsBody(serialised_message):
+    def saveIncidentsBody(serialised_message): #called
         j_data = json.loads(serialised_message.decode(
             'utf-8').replace("'", '"'))
         with open('j_data_file.json', 'w') as outfile:
             json.dump(j_data, outfile, indent=4)
-        print("Traffic Incidents saved to disk")
+        print("Traffic Incidents saved to disk") #called
 
     def callbackIncidents(ch, method, properties, body):
         saveIncidentsBody(body)
 
     channel.basic_consume(
         queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
-    print("I AM CONSUMING")
+    print("I AM CONSUMING") #called
     channel.start_consuming()
 
 

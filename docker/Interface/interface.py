@@ -3,21 +3,21 @@ import json
 import time
 
 
-def callbackONE(ch, method, properties, body):
+def callbackONE(channel, method, properties, body):
     print(" [x] Received %r" % body)
     try:
         '''
         ASSUME BODY in bytes is serialised byte
         '''
 
-        credentials = pika.PlainCredentials("guest", "guest")
+        # credentials = pika.PlainCredentials("guest", "guest")
 
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-        )
-        channel = connection.channel()
-        # Api to Model queue
-        channel.queue_declare(queue='InterfaceModelQ')
+        # connection = pika.BlockingConnection(
+        #     pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+        # )
+        # channel = connection.channel()
+        # # Api to Model queue
+        
 
         message = body
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     while True:
         try:
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000) #added heartbeat
             )
             break
         except Exception as e:
@@ -46,12 +46,14 @@ if __name__ == "__main__":
 
     channel.queue_declare(queue='ClientInterfaceQ')
 
+    channel.queue_declare(queue='InterfaceModelQ')
+
     channel.basic_consume(queue='ClientInterfaceQ', on_message_callback = callbackONE, auto_ack=True)
 
     channel.start_consuming()
 
-    channel.queue_declare(queue='InterfaceModelQ')
+    # channel.queue_declare(queue='InterfaceModelQ')
 
-    channel.basic_consume(queue='InterfaceModelQ', on_message_callback = callbackONE, auto_ack=True)
+    # channel.basic_consume(queue='InterfaceModelQ', on_message_callback = callbackONE, auto_ack=True)
 
-    channel.start_consuming()
+    # channel.start_consuming()
