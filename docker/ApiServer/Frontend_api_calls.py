@@ -45,6 +45,7 @@ def get_json(path):
 
 
 def payload():
+    print("payload run")
     # use_cuda = torch.cuda.is_available()
     # if (use_cuda):
     #     # GPU accleration
@@ -149,6 +150,7 @@ def payload():
     ltaDump_json = final_df.to_json(orient='records')
     nearest_incidents_json = nearest_incidents.to_json(orient='records')
 
+    print("payload finished")
     return ltaDump_json, nearest_incidents_json
 
 
@@ -173,6 +175,7 @@ if __name__ == "__main__":
 
     def driver(channel):
         ltaDump_json, nearest_incidents_json = payload()
+        print(ltaDump_json, nearest_incidents_json)
 
         # Api to Model queue
         channel.queue_declare(queue='ApiModelQ')
@@ -194,10 +197,25 @@ if __name__ == "__main__":
         # timer = RepeatTimer(10, driver(channel))
         # timer.start()
         # Runs hundred iterations before service shuts down
-        driver(channel)
-        time.sleep(300)
+        print(i)
+        print("hello") #reaches here
+        if i % 2 == 0:
+            driver(channel)
+        print(i)
+        print("hi")
+        if i % 2 == 1:
+            time.sleep(300)
+        # if driver_status == "finished":
+        #     remaining = 300
+        #     while remaining > 0:
+        #         print("sleep for 5 seconds")
+        #         connection.process_data_events()
+        #         time.sleep(5) #gabole bobo lama lama
+        #         remaining -= 5
         # timer.cancel()
     connection.close()
 #Current problem with this API is the heartbeat: I added heartbeat = 1000 
 #[error] <0.709.0> missed heartbeats from client, timeout: 60s
 #pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+#API RUNNING ALR
