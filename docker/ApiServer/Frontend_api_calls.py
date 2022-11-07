@@ -196,14 +196,6 @@ if __name__ == "__main__":
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
     # print("aaa")
 
-    # driver(channel)
-
-    # for i in range(100):
-    #     print("hello")
-    #     driver(channel)
-    #     print(i)
-    #     time.sleep(10)
-
     driver(channel)
 
     for i in range(100):
@@ -212,25 +204,6 @@ if __name__ == "__main__":
         print(i)
         time.sleep(300)
 
-    #     # timer = RepeatTimer(10, driver(channel))
-    #     # timer.start()
-    #     # Runs hundred iterations before service shuts down
-    #     print(i)
-    #     print("hello") #reaches here
-    #     if i % 2 == 0:
-    #         driver(channel)
-    #     print(i)
-    #     print("hi")
-    #     if i % 2 == 1:
-    #         time.sleep(300)
-        # if driver_status == "finished":
-        #     remaining = 300
-        #     while remaining > 0:
-        #         print("sleep for 5 seconds")
-        #         connection.process_data_events()
-        #         time.sleep(5) #gabole bobo lama lama
-        #         remaining -= 5
-        # timer.cancel()
     connection.close()
 #Current problem with this API is the heartbeat: I added heartbeat = 1000 
 #[error] <0.709.0> missed heartbeats from client, timeout: 60s
