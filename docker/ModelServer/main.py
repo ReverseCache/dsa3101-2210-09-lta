@@ -106,19 +106,20 @@ CALLBACKS
 
 
 def callback87(ch, method, properties, body):
-    print(" [x] Received %r" % body)
-    try:
-        output_payload = get_predictions(body)
+    print('CLIFTON COKCKCKKCKCKC')
+    # print(" [x] Received %r" % body)
+    # try:
+    #     output_payload = get_predictions(body)
 
-        message = json.dumps(output_payload)
-        channel.basic_publish(
-            exchange="", routing_key="ModelFileQ", body=message)
+    #     message = json.dumps(output_payload)
+    #     channel.basic_publish(
+    #         exchange="", routing_key="ModelFileQ", body=message)
         
-        print(" [x] Sent prediction87S json to RabbitMQ")
+    #     print(" [x] Sent prediction87S json to RabbitMQ")
 
-    except Exception as e:
-        print("failed to send message")
-        print(str(e))
+    # except Exception as e:
+    #     print("failed to send message")
+    #     print(str(e))
 
 
 def callbackONE(ch, method, properties, body):
@@ -142,6 +143,7 @@ def callbackONE(ch, method, properties, body):
 
 if __name__ == "__main__":
     while True:
+        
         try:
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
@@ -149,7 +151,7 @@ if __name__ == "__main__":
             )
             channel = connection.channel()
             break
-        
+
         except Exception as e:
             print("Waiting for connection")
             time.sleep(5)
@@ -160,6 +162,9 @@ if __name__ == "__main__":
     channel.queue_declare(queue='ModelFileQ')
 
     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
-    channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
-
+    print("CLIFTON CONSUME DRUGS")
     channel.start_consuming()
+    print("CLIFTON GLUCK222 90900000")
+    channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
+    channel.start_consuming()
+
