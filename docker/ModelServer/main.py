@@ -11,7 +11,6 @@ import time
 
 #def get_prediction(file: bytes = File(...)):
 def get_prediction(file):
-    print("get_prediction")
     input_image = get_image_from_bytes(file)
     count_result = count_model(input_image)
     count_result.render()
@@ -46,7 +45,7 @@ def get_prediction(file):
 
 #def get_predictions(input_payload: dict = Body(...)):
 def get_predictions(input_payload):
-    print("get_predictions")
+    return input_payload
     image_links = list(map(lambda x: x["ImageLink"], input_payload["value"]))
     input_images = []
     camera_ids = []
@@ -106,8 +105,7 @@ CALLBACKS
 
 
 def callback87(channel, method, properties, body):
-    print(" [x] callback87 Received") 
-    # print(" [x] Received %r" % body) #called alr
+    print(" [x] Received %r" % body) #called alr
     try:
         output_payload = get_predictions(body)
 
@@ -125,8 +123,7 @@ def callback87(channel, method, properties, body):
 
 
 def callbackONE(channel, method, properties, body):
-    # print(" [x] Received %r" % body)
-    print(" [x] Received %r")
+    print(" [x] Received %r" % body)
     try:
         '''
         ASSUME BODY in bytes is serialised byte
@@ -147,6 +144,12 @@ def callbackONE(channel, method, properties, body):
 
 
 if __name__ == "__main__":
+    try:
+        count_model = get_count_model()
+        congestion_model = get_congestion_model()
+    except:
+        pass
+
     while True:
         try:
             print(1)
