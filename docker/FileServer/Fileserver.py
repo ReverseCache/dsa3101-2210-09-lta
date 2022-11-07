@@ -1,60 +1,49 @@
-import http.server
-import socketserver
 import json
 import pika
 import time
+from datetime import datetime
 
-#from threading import Thread
+def saveIncidentsBody(serialised_message): #called
+    j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
+    with open('j_data_file.json', 'w') as outfile:
+        json.dump(j_data, outfile, indent=4)
+    print("Traffic Incidents saved to disk") #called
+
+def callbackIncidents(ch, method, properties, body):
+    saveIncidentsBody(body)
+
+def saveLta(serialised_message): #called
+    j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
+    currentDateTime = datetime.now()
+    with open(currentDateTime, 'w') as outfile:
+        json.dump(j_data, outfile, indent=4)
+    print("LTA dump saved to disk") #called
+
+def callbackLta(ch, method, properties, body):
+    saveLta(body)
 
 
-# def FileServer():
-#     PORT = 4321
-#     httpd = socketserver.TCPServer(
-#         ("", PORT), http.server.SimpleHTTPRequestHandler)
-#     print("Serving FileServer on port 4321")
-#     httpd.serve_forever()
-
-
-def Messenger():
+if __name__ == "__main__":
     print("Starting Connection on FileServer!")
-    Flag = True
-    while Flag:
-        try: #it calls for 2 times then it reach channels success
-            print("Trying to connect with Rabbit")
+    while True:
+        try:
+            print(1)
             credentials = pika.PlainCredentials("guest", "guest")
-            print("Credentials Success")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000) #added heartbeat
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
-            print("Connection Success")
+            print(2)
             channel = connection.channel()
-            print("Channels Success")
-            Flag = False
+            break
+        
         except Exception as e:
             print("Waiting for connection")
             time.sleep(5)
 
-    print("Connected on FileServer!") #called alr
-    channel.queue_declare(queue='ApiFileQ') #called alr
+    channel.queue_declare(queue='ApiFileQ')
+    channel.queue_declare(queue='ModelFileQ') 
 
-    print("Declared Queue as \"ApiFileQ\" on FileServer!")
+    channel.basic_consume(queue='ModelFileQ', on_message_callback=callbackLta, auto_ack=True)
+    channel.basic_consume(queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
 
-    def saveIncidentsBody(serialised_message): #called
-        j_data = json.loads(serialised_message.decode(
-            'utf-8').replace("'", '"'))
-        with open('j_data_file.json', 'w') as outfile:
-            json.dump(j_data, outfile, indent=4)
-        print("Traffic Incidents saved to disk") #called
-
-    def callbackIncidents(ch, method, properties, body):
-        saveIncidentsBody(body)
-
-    channel.basic_consume(
-        queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
-    print("I AM CONSUMING") #called
     channel.start_consuming()
-
-
-if __name__ == "__main__":
-    Messenger()
-    # Thread(target=FileServer).start()

@@ -45,7 +45,8 @@ def get_prediction(file):
 
 #def get_predictions(input_payload: dict = Body(...)):
 def get_predictions(input_payload):
-    image_links = list(map(lambda x: x["ImageLink"], input_payload["value"]))
+    # print(input_payload[0])
+    image_links = list(map(lambda x: x["ImageLink"], input_payload))
     input_images = []
     camera_ids = []
     images_datetime = []
@@ -61,6 +62,7 @@ def get_predictions(input_payload):
             input_images.append(img)
             camera_ids.append(camera_id)
             images_datetime.append(image_datetime)
+            # break #remove this
         except Exception as e:
             print(str(e))
 
@@ -75,24 +77,26 @@ def get_predictions(input_payload):
         congestions = list(map(lambda x: min(
             sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
 
-        count_img_strings = []
-        for img in count_results.ims:
-            bytes_io = io.BytesIO()
-            img_base64 = Image.fromarray(img)
-            img_base64.save(bytes_io, format="jpeg")
-            img_string = base64.b64encode(bytes_io.getvalue())
-            count_img_strings.append(img_string)
+        # count_img_strings = []
+        # for img in count_results.ims:
+        #     bytes_io = io.BytesIO()
+        #     img_base64 = Image.fromarray(img)
+        #     img_base64.save(bytes_io, format="jpeg")
+        #     img_string = base64.b64encode(bytes_io.getvalue())
+        #     count_img_strings.append(img_string)
 
-        congestion_img_strings = []
-        for img in congestion_results.ims:
-            bytes_io = io.BytesIO()
-            img_base64 = Image.fromarray(img)
-            img_base64.save(bytes_io, format="jpeg")
-            img_string = base64.b64encode(bytes_io.getvalue())
-            congestion_img_strings.append(img_string)
+        # congestion_img_strings = []
+        # for img in congestion_results.ims:
+        #     bytes_io = io.BytesIO()
+        #     img_base64 = Image.fromarray(img)
+        #     img_base64.save(bytes_io, format="jpeg")
+        #     img_string = base64.b64encode(bytes_io.getvalue())
+        #     congestion_img_strings.append(img_string)
 
-        output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions,
-                          "count_img_strings": count_img_strings, "congestion_img_strings": congestion_img_strings}
+        # output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions,
+        #                   "count_img_strings": count_img_strings, "congestion_img_strings": congestion_img_strings}
+        
+        output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
 
         return output_payload  # uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
@@ -102,15 +106,22 @@ CALLBACKS
 '''
 
 
-
 def callback87(channel, method, properties, body):
-    print(" [x] Received %r" % body) #called alr
+    print(" [x] Received") #called alr
     try:
-        output_payload = get_predictions(body)
+        # print("body type", type(body))
+        # print("aiueo", body.decode('utf8').replace("'", '"'))
+        output_payload = get_predictions(json.loads(json.loads(body)))
+        # print("output", output_payload)
+        # print(type(json.loads(json.loads(body))))
 
-        message = json.dumps(output_payload)
+        message = json.dumps([output_payload])
+        # print("message", message)
+        # message = output_payload
         channel.basic_publish(
             exchange="", routing_key="ModelFileQ", body=message)
+
+        # channel.basic_ack(delivery_tag = method.delivery_tag)
         
         print(" [x] Sent prediction87S json to RabbitMQ")
 
@@ -125,11 +136,13 @@ def callbackONE(channel, method, properties, body):
         '''
         ASSUME BODY in bytes is serialised byte
         '''
-        output_payload = get_prediction(body)
+        output_payload = get_prediction(body).to_json(orient='records')
 
         message = json.dumps(output_payload)
         channel.basic_publish(
             exchange="", routing_key="ModelInterfaceQ", body=message)
+
+        channel.basic_ack(delivery_tag = method.delivery_tag)
         print(" [x] Sent predictionONE json to RabbitMQ")
 
     except Exception as e:
@@ -138,73 +151,34 @@ def callbackONE(channel, method, properties, body):
 
 
 
-
-
-# if __name__ == "__main__":
-#     while True:
-#         try:
-#             credentials = pika.PlainCredentials("guest", "guest")
-#             connection = pika.BlockingConnection(
-#                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-#             )
-#             channel = connection.channel()
-#             break
-        
-#         except Exception as e:
-#             print("Waiting for connection")
-#             time.sleep(5)
-
-#     channel.queue_declare(queue='ApiModelQ')
-#     channel.queue_declare(queue='InterfaceModelQ')
-#     channel.queue_declare(queue='ModelInterfaceQ')
-#     channel.queue_declare(queue='ModelFileQ')
-
-#     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
-#     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
-
-#     channel.start_consuming()
-
-def on_open(connection):
-    connection.channel(on_open_callback=on_channel_open)
-
-def on_channel_open(channel):
-    channel.queue_declare(queue='ApiModelQ')
-    channel.queue_declare(queue='InterfaceModelQ')
-    channel.queue_declare(queue='ModelInterfaceQ')
-    channel.queue_declare(queue='ModelFileQ')
-
-    channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
-    channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
-    print("CLIFTON CONSUME DRUGS")
-
-
 if __name__ == "__main__":
     count_model = get_count_model()
     congestion_model = get_congestion_model()
-    
+
+
     while True:
         try:
-            print(0)
+            print(1)
             credentials = pika.PlainCredentials("guest", "guest")
-            print("1")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000), #added hearbeat
-                on_open_callback = on_open
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
-            print("2")
-            # channel = connection.channel()
-            break
+            print(2)
+            channel = connection.channel()
+
+            channel.queue_declare(queue='ApiModelQ')
+            channel.queue_declare(queue='InterfaceModelQ')
+            channel.queue_declare(queue='ModelInterfaceQ')
+            channel.queue_declare(queue='ModelFileQ')
+
+            print(3)
+            channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
+            channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
+
+            print(4)
+            channel.start_consuming()
+            print(5)
         
         except Exception as e:
             print("Waiting for connection")
             time.sleep(5)
-
-    parameters = pika.URLParameters('amqp://guest:guest@localhost:5672/%2F')
-    connection = pika.SelectConnection(parameters=parameters,
-                                    on_open_callback=on_open)
-
-    try:
-        connection.ioloop.start()
-    except KeyboardInterrupt:
-        connection.close()
-
