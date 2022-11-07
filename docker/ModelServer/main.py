@@ -105,8 +105,8 @@ CALLBACKS
 '''
 
 
-def callback87(ch, method, properties, body):
-    print(" [x] Received %r" % body)
+def callback87(channel, method, properties, body):
+    print(" [x] Received %r" % body) #called alr
     try:
         output_payload = get_predictions(body)
 
@@ -121,7 +121,7 @@ def callback87(ch, method, properties, body):
         print(str(e))
 
 
-def callbackONE(ch, method, properties, body):
+def callbackONE(channel, method, properties, body):
     print(" [x] Received %r" % body)
     try:
         '''
@@ -140,20 +140,34 @@ def callbackONE(ch, method, properties, body):
 
 
 
-if __name__ == "__main__":
-    while True:
-        try:
-            credentials = pika.PlainCredentials("guest", "guest")
-            connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-            )
-            channel = connection.channel()
-            break
+# if __name__ == "__main__":
+#     while True:
+#         try:
+#             credentials = pika.PlainCredentials("guest", "guest")
+#             connection = pika.BlockingConnection(
+#                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+#             )
+#             channel = connection.channel()
+#             break
         
-        except Exception as e:
-            print("Waiting for connection")
-            time.sleep(5)
+#         except Exception as e:
+#             print("Waiting for connection")
+#             time.sleep(5)
 
+#     channel.queue_declare(queue='ApiModelQ')
+#     channel.queue_declare(queue='InterfaceModelQ')
+#     channel.queue_declare(queue='ModelInterfaceQ')
+#     channel.queue_declare(queue='ModelFileQ')
+
+#     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
+#     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
+
+#     channel.start_consuming()
+
+def on_open(connection):
+    connection.channel(on_open_callback=on_channel_open)
+
+def on_channel_open(channel):
     channel.queue_declare(queue='ApiModelQ')
     channel.queue_declare(queue='InterfaceModelQ')
     channel.queue_declare(queue='ModelInterfaceQ')
@@ -163,3 +177,25 @@ if __name__ == "__main__":
     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
 
     channel.start_consuming()
+
+if __name__ == "__main__":
+    while True:
+        try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000), #added hearbeat
+                on_open_callback = on_open
+            )
+            channel = connection.channel()
+            break
+        
+        except Exception as e:
+            print("Waiting for connection")
+            time.sleep(5)
+
+    try:
+        connection.ioloop.start()
+    except KeyboardInterrupt:
+        connection.close()
+
+    

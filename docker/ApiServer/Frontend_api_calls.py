@@ -163,7 +163,7 @@ if __name__ == "__main__":
         try:
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
             channel = connection.channel()
             break
@@ -179,16 +179,16 @@ if __name__ == "__main__":
 
         message = json.dumps(ltaDump_json)
         channel.basic_publish(
-            exchange="", routing_key="ApiModelQ", body=message)
-        print(" [x] Sent ltaDump json to RabbitMQ")
+            exchange="", routing_key="ApiModelQ", body=message) #success
+        print(" [x] Sent ltaDump json to RabbitMQ") #called
 
         # Api to File queue
         channel.queue_declare(queue='ApiFileQ')
 
         message = json.dumps(nearest_incidents_json)
         channel.basic_publish(
-            exchange="", routing_key="ApiFileQ", body=message)
-        print(" [x] Sent nearest incidents json to RabbitMQ")
+            exchange="", routing_key="ApiFileQ", body=message) #success
+        print(" [x] Sent nearest incidents json to RabbitMQ") #called
 
     for i in range(100):
         # timer = RepeatTimer(10, driver(channel))
@@ -198,3 +198,6 @@ if __name__ == "__main__":
         time.sleep(300)
         # timer.cancel()
     connection.close()
+#Current problem with this API is the heartbeat: I added heartbeat = 1000 
+#[error] <0.709.0> missed heartbeats from client, timeout: 60s
+#pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
