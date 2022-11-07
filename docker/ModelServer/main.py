@@ -11,6 +11,7 @@ import time
 
 #def get_prediction(file: bytes = File(...)):
 def get_prediction(file):
+    print("get_prediction")
     input_image = get_image_from_bytes(file)
     count_result = count_model(input_image)
     count_result.render()
@@ -45,6 +46,7 @@ def get_prediction(file):
 
 #def get_predictions(input_payload: dict = Body(...)):
 def get_predictions(input_payload):
+    print("get_predictions")
     image_links = list(map(lambda x: x["ImageLink"], input_payload["value"]))
     input_images = []
     camera_ids = []
@@ -61,6 +63,7 @@ def get_predictions(input_payload):
             input_images.append(img)
             camera_ids.append(camera_id)
             images_datetime.append(image_datetime)
+            break #remove this
         except Exception as e:
             print(str(e))
 
@@ -103,7 +106,8 @@ CALLBACKS
 
 
 def callback87(channel, method, properties, body):
-    print(" [x] Received %r" % body) #called alr
+    print(" [x] callback87 Received") 
+    # print(" [x] Received %r" % body) #called alr
     try:
         output_payload = get_predictions(body)
 
@@ -121,7 +125,8 @@ def callback87(channel, method, properties, body):
 
 
 def callbackONE(channel, method, properties, body):
-    print(" [x] Received %r" % body)
+    # print(" [x] Received %r" % body)
+    print(" [x] Received %r")
     try:
         '''
         ASSUME BODY in bytes is serialised byte
@@ -147,7 +152,7 @@ if __name__ == "__main__":
             print(1)
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
             print(2)
             channel = connection.channel()
@@ -166,7 +171,9 @@ if __name__ == "__main__":
     channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
     channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
 
+    print(4)
     channel.start_consuming()
+    print(5)
 
 # def on_open(connection):
 #     connection.channel(on_open_callback=on_channel_open)

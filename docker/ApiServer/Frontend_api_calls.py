@@ -195,7 +195,11 @@ if __name__ == "__main__":
     
     driver(channel)
 
-    # for i in range(100):
+    for i in range(100):
+        print("hello")
+        driver(channel)
+        print(i)
+        time.sleep(300)
     #     # timer = RepeatTimer(10, driver(channel))
     #     # timer.start()
     #     # Runs hundred iterations before service shuts down
