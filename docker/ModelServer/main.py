@@ -45,7 +45,6 @@ def get_prediction(file):
 
 #def get_predictions(input_payload: dict = Body(...)):
 def get_predictions(input_payload):
-    return input_payload
     image_links = list(map(lambda x: x["ImageLink"], input_payload["value"]))
     input_images = []
     camera_ids = []
@@ -107,7 +106,7 @@ CALLBACKS
 def callback87(channel, method, properties, body):
     print(" [x] Received %r" % body) #called alr
     try:
-        output_payload = get_predictions(body)
+        output_payload = get_predictions(body).to_json(orient='records')
 
         message = json.dumps(output_payload)
         channel.basic_publish(
@@ -128,7 +127,7 @@ def callbackONE(channel, method, properties, body):
         '''
         ASSUME BODY in bytes is serialised byte
         '''
-        output_payload = get_prediction(body)
+        output_payload = get_prediction(body).to_json(orient='records')
 
         message = json.dumps(output_payload)
         channel.basic_publish(
@@ -144,11 +143,9 @@ def callbackONE(channel, method, properties, body):
 
 
 if __name__ == "__main__":
-    try:
-        count_model = get_count_model()
-        congestion_model = get_congestion_model()
-    except:
-        pass
+    count_model = get_count_model()
+    congestion_model = get_congestion_model()
+
 
     while True:
         try:
@@ -159,24 +156,24 @@ if __name__ == "__main__":
             )
             print(2)
             channel = connection.channel()
-            break
+
+            channel.queue_declare(queue='ApiModelQ')
+            channel.queue_declare(queue='InterfaceModelQ')
+            channel.queue_declare(queue='ModelInterfaceQ')
+            channel.queue_declare(queue='ModelFileQ')
+
+            print(3)
+            channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
+            channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
+
+            print(4)
+            channel.start_consuming()
+            print(5)
         
         except Exception as e:
             print("Waiting for connection")
             time.sleep(5)
 
-    channel.queue_declare(queue='ApiModelQ')
-    channel.queue_declare(queue='InterfaceModelQ')
-    channel.queue_declare(queue='ModelInterfaceQ')
-    channel.queue_declare(queue='ModelFileQ')
-
-    print(3)
-    channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
-    channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
-
-    print(4)
-    channel.start_consuming()
-    print(5)
 
 # def on_open(connection):
 #     connection.channel(on_open_callback=on_channel_open)

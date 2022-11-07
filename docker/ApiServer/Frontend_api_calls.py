@@ -196,13 +196,22 @@ if __name__ == "__main__":
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
     print("aaa")
 
+    # driver(channel)
+
+    # for i in range(100):
+    #     print("hello")
+    #     driver(channel)
+    #     print(i)
+    #     time.sleep(10)
+
     driver(channel)
 
     for i in range(100):
         print("hello")
         driver(channel)
         print(i)
-        time.sleep(10)
+        time.sleep(300)
+
     #     # timer = RepeatTimer(10, driver(channel))
     #     # timer.start()
     #     # Runs hundred iterations before service shuts down
