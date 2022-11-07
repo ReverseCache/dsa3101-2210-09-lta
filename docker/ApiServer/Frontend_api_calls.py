@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
     def driver(channel):
         ltaDump_json, nearest_incidents_json = payload()
-        print(ltaDump_json, nearest_incidents_json)
+        # print(ltaDump_json, nearest_incidents_json)
 
         # Api to Model queue
         channel.queue_declare(queue='ApiModelQ')
@@ -192,19 +192,21 @@ if __name__ == "__main__":
         channel.basic_publish(
             exchange="", routing_key="ApiFileQ", body=message) #success
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
+    
+    driver(channel)
 
-    for i in range(100):
-        # timer = RepeatTimer(10, driver(channel))
-        # timer.start()
-        # Runs hundred iterations before service shuts down
-        print(i)
-        print("hello") #reaches here
-        if i % 2 == 0:
-            driver(channel)
-        print(i)
-        print("hi")
-        if i % 2 == 1:
-            time.sleep(300)
+    # for i in range(100):
+    #     # timer = RepeatTimer(10, driver(channel))
+    #     # timer.start()
+    #     # Runs hundred iterations before service shuts down
+    #     print(i)
+    #     print("hello") #reaches here
+    #     if i % 2 == 0:
+    #         driver(channel)
+    #     print(i)
+    #     print("hi")
+    #     if i % 2 == 1:
+    #         time.sleep(300)
         # if driver_status == "finished":
         #     remaining = 300
         #     while remaining > 0:
