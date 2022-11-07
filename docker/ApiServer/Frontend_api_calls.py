@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
     def driver(channel):
         ltaDump_json, nearest_incidents_json = payload()
-        print(ltaDump_json, nearest_incidents_json)
+        # print(ltaDump_json, nearest_incidents_json)
 
         # Api to Model queue
         channel.queue_declare(queue='ApiModelQ')
