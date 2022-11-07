@@ -9,9 +9,6 @@ import requests
 import pika
 import time
 
-count_model = get_count_model()
-congestion_model = get_congestion_model()
-
 #def get_prediction(file: bytes = File(...)):
 def get_prediction(file):
     input_image = get_image_from_bytes(file)
@@ -179,14 +176,20 @@ def on_channel_open(channel):
     channel.start_consuming()
 
 if __name__ == "__main__":
+    count_model = get_count_model()
+    congestion_model = get_congestion_model()
+    
     while True:
         try:
+            print(0)
             credentials = pika.PlainCredentials("guest", "guest")
+            print("1")
             connection = pika.BlockingConnection(
                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000), #added hearbeat
                 on_open_callback = on_open
             )
-            channel = connection.channel()
+            print("2")
+            # channel = connection.channel()
             break
         
         except Exception as e:
