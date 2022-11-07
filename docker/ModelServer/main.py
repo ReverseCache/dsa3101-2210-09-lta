@@ -62,7 +62,7 @@ def get_predictions(input_payload):
             input_images.append(img)
             camera_ids.append(camera_id)
             images_datetime.append(image_datetime)
-            # break #remove this
+            break #remove this
         except Exception as e:
             print(str(e))
 
@@ -109,19 +109,12 @@ CALLBACKS
 def callback87(channel, method, properties, body):
     print(" [x] Received") #called alr
     try:
-        # print("body type", type(body))
-        # print("aiueo", body.decode('utf8').replace("'", '"'))
         output_payload = get_predictions(json.loads(json.loads(body)))
-        # print("output", output_payload)
-        # print(type(json.loads(json.loads(body))))
 
         message = json.dumps([output_payload])
-        # print("message", message)
-        # message = output_payload
+
         channel.basic_publish(
             exchange="", routing_key="ModelFileQ", body=message)
-
-        # channel.basic_ack(delivery_tag = method.delivery_tag)
         
         print(" [x] Sent prediction87S json to RabbitMQ")
 

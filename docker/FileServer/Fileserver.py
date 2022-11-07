@@ -4,7 +4,8 @@ import time
 from datetime import datetime
 
 def saveIncidentsBody(serialised_message): #called
-    j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
+    j_data = json.loads(json.loads(serialised_message))
+    # j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
     with open('j_data_file.json', 'w') as outfile:
         json.dump(j_data, outfile, indent=4)
     print("Traffic Incidents saved to disk") #called
@@ -14,8 +15,8 @@ def callbackIncidents(ch, method, properties, body):
 
 def saveLta(serialised_message): #called
     j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
-    currentDateTime = datetime.now()
-    with open(currentDateTime, 'w') as outfile:
+    # currentDateTime = datetime.now()
+    with open("ltadump.json", 'w') as outfile:
         json.dump(j_data, outfile, indent=4)
     print("LTA dump saved to disk") #called
 

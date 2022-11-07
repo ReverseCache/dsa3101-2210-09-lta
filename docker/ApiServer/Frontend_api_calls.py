@@ -205,8 +205,5 @@ if __name__ == "__main__":
         time.sleep(300)
 
     connection.close()
-#Current problem with this API is the heartbeat: I added heartbeat = 1000 
-#[error] <0.709.0> missed heartbeats from client, timeout: 60s
-#pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
 
 #API RUNNING ALR
