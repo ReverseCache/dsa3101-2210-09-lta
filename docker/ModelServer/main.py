@@ -59,6 +59,10 @@ def get_prediction(file):
 
 #def get_predictions(input_payload: dict = Body(...)):
 def get_predictions(input_payload):
+    rainfalls = list(map(lambda x: x["rainfall"], input_payload))
+    latitudes = list(map(lambda x: x["Latitude"], input_payload))
+    longitudes = list(map(lambda x: x["Longitude"], input_payload))
+
     # print(input_payload[0])
     image_links = list(map(lambda x: x["ImageLink"], input_payload))
     input_images = []
@@ -91,7 +95,8 @@ def get_predictions(input_payload):
         congestions = list(map(lambda x: min(
             sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
 
-        output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
+        output_payload = {"rainfall": rainfalls, "latitude": latitudes, "longitude": longitudes,
+            "camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
 
         return output_payload  # uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
