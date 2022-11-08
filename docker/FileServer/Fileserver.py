@@ -23,7 +23,7 @@ def saveLta(serialised_message): #called
 
     with open(f"ltadump/{currentDateTimeString}.json", 'w') as outfile:
         json.dump(ltadump, outfile, indent=4)
-    print("LTA dump saved to disk") #called
+    print("LTA dump saved to disk") #
 
 def callbackLta(channel, method, properties, body):
     saveLta(body)
