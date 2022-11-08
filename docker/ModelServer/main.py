@@ -62,7 +62,7 @@ def get_predictions(input_payload):
             input_images.append(img)
             camera_ids.append(camera_id)
             images_datetime.append(image_datetime)
-            break #remove this
+            # break #remove this
         except Exception as e:
             print(str(e))
 
@@ -124,7 +124,7 @@ def callback87(channel, method, properties, body):
 
 
 def callbackONE(channel, method, properties, body):
-    print(" [x] Received %r" % body)
+    print(" [x] Received")
     try:
         '''
         ASSUME BODY in bytes is serialised byte
@@ -151,12 +151,11 @@ if __name__ == "__main__":
 
     while True:
         try:
-            print(1)
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
-            print(2)
+
             channel = connection.channel()
 
             channel.queue_declare(queue='ApiModelQ')
@@ -164,13 +163,10 @@ if __name__ == "__main__":
             channel.queue_declare(queue='ModelInterfaceQ')
             channel.queue_declare(queue='ModelFileQ')
 
-            print(3)
             channel.basic_consume(on_message_callback = callback87, queue='ApiModelQ', auto_ack=True)
             channel.basic_consume(on_message_callback = callbackONE, queue='InterfaceModelQ', auto_ack=True)
 
-            print(4)
             channel.start_consuming()
-            print(5)
 
     
         except Exception as e:

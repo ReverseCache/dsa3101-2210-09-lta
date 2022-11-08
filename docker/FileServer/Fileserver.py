@@ -1,26 +1,32 @@
 import json
 import pika
 import time
+import os
 from datetime import datetime
 
 def saveIncidentsBody(serialised_message): #called
-    j_data = json.loads(json.loads(serialised_message))
+    incidents_data = json.loads(json.loads(serialised_message))
     # j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
-    with open('j_data_file.json', 'w') as outfile:
-        json.dump(j_data, outfile, indent=4)
+    with open('incidents_data.json', 'w') as outfile:
+        json.dump(incidents_data, outfile, indent=4)
     print("Traffic Incidents saved to disk") #called
 
-def callbackIncidents(ch, method, properties, body):
+def callbackIncidents(channel, method, properties, body):
     saveIncidentsBody(body)
 
 def saveLta(serialised_message): #called
-    j_data = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
-    # currentDateTime = datetime.now()
-    with open("ltadump.json", 'w') as outfile:
-        json.dump(j_data, outfile, indent=4)
+    ltadump = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
+    currentDateTime = datetime.now()
+    currentDateTimeString = currentDateTime.strftime("%Y_%m_%d_%H_%M_%S")
+
+    if not os.path.exists("ltadump/"):
+        os.makedirs("ltadump/")
+
+    with open(f"ltadump/{currentDateTimeString}.json", 'w') as outfile:
+        json.dump(ltadump, outfile, indent=4)
     print("LTA dump saved to disk") #called
 
-def callbackLta(ch, method, properties, body):
+def callbackLta(channel, method, properties, body):
     saveLta(body)
 
 
