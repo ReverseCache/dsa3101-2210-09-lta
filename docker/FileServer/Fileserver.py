@@ -2,7 +2,7 @@ import json
 import pika
 import time
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def saveIncidentsBody(serialised_message): #called
     incidents_data = json.loads(json.loads(serialised_message))
@@ -16,7 +16,7 @@ def callbackIncidents(channel, method, properties, body):
 
 def saveLta(serialised_message): #called
     ltadump = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
-    currentDateTime = datetime.now()
+    currentDateTime = datetime.now() + timedelta(hours = 8)
     currentDateTimeString = currentDateTime.strftime("%Y_%m_%d_%H_%M_%S")
 
     if not os.path.exists("ltadump/"):

@@ -194,7 +194,7 @@ if __name__ == "__main__":
             exchange="", routing_key="ApiFileQ", body=message) #success
         print(" [x] Sent nearest incidents json to RabbitMQ") #called
 
-    driver(channel)
+    # driver(channel)
 
     for i in range(100):
         print("hello")
