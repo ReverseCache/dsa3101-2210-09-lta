@@ -28,6 +28,59 @@ def saveLta(serialised_message): #called
 def callbackLta(channel, method, properties, body):
     saveLta(body)
 
+def callbackInterfaceFile(channel, method, properties, body):
+    if properties.headers.get("key") == "Incidents":
+        if not os.path.exists("incidents_data.json"):
+            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+                properties=pika.BasicProperties(headers={'key': 'Incidents'}), body='[]')
+
+        f = open("incidents_data.json")
+        message = json.dumps(json.load(f))
+        channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+                properties=pika.BasicProperties(headers={'key': 'Incidents'}), body=message)
+
+    elif properties.headers.get("key") == "Ltadump":
+        if not os.path.exists("ltadump/"):
+            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+                properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body='[]')
+
+        FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 30)
+        FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
+        
+        last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("ltadump/")))
+
+        output_files = [{}]
+        for fileName in last40MinsFiles:
+            output_files[0][fileName] = json.load(open(f"ltadump/{fileName}"))
+
+        message = json.dumps(output_files)
+        channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+                properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body=message)
+
+# def callbackPostIncidents(channel, method, properties, body):
+#     if not os.path.exists("incidents_data.json"):
+#         channel.basic_publish(exchange="", routing_key="FileInterfaceIncidentsQ", body='[]')
+
+#     f = open("incidents_data.json")
+#     message = json.dumps([json.load(f)])
+#     channel.basic_publish(exchange="", routing_key="FileInterfaceIncidentsQ", body=message)
+
+# def callbackPostLtadump(channel, method, properties, body):
+#     if not os.path.exists("ltadump/"):
+#         channel.basic_publish(exchange="", routing_key="FileInterfaceLtadumpQ", body='[]')
+
+#     FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 30)
+#     FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
+    
+#     last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("ltadump/")))
+
+#     output_files = []
+#     for fileName in last40MinsFiles:
+#         output_files += json.load(open(f"ltadump/{fileName}"))
+
+#     message = json.dumps(output_files)
+#     channel.basic_publish(exchange="", routing_key="FileInterfaceLtadumpQ", body=message)
+
 
 if __name__ == "__main__":
     print("Starting Connection on FileServer!")
@@ -48,8 +101,11 @@ if __name__ == "__main__":
 
     channel.queue_declare(queue='ApiFileQ')
     channel.queue_declare(queue='ModelFileQ') 
+    channel.queue_declare(queue='InterfaceFileQ')
+    channel.queue_declare(queue='FileInterfaceQ')
 
     channel.basic_consume(queue='ModelFileQ', on_message_callback=callbackLta, auto_ack=True)
     channel.basic_consume(queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
+    channel.basic_consume(queue='InterfaceFileQ', on_message_callback=callbackInterfaceFile, auto_ack=True)
 
     channel.start_consuming()
