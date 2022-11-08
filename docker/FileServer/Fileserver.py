@@ -10,14 +10,6 @@ def saveIncidentsBody(serialised_message): #called
         json.dump(incidents_data, outfile, indent=4)
     print("Traffic Incidents saved to disk")
 
-    try:
-        message = serialised_message
-        channel.basic_publish(exchange="", routing_key="FileInterfaceIncidentsQ", body=message)
-        print(" [x] Sent incidents to interface")
-    except Exception as e:
-        print("failed to send message")
-        print(str(e))
-
 def callbackIncidents(channel, method, properties, body):
     saveIncidentsBody(body)
 
@@ -32,14 +24,6 @@ def saveLta(serialised_message): #called
     with open(f"ltadump/{currentDateTimeString}.json", 'w') as outfile:
         json.dump(ltadump, outfile, indent=4)
     print("LTA dump saved to disk") #
-    
-    try:
-        message = serialised_message
-        channel.basic_publish(exchange="", routing_key="FileInterfaceLtaQ", body=message)
-        print(" [x] Sent lta dump to interface")
-    except Exception as e:
-        print("failed to send message")
-        print(str(e))
 
 def callbackLta(channel, method, properties, body):
     saveLta(body)
@@ -64,8 +48,6 @@ if __name__ == "__main__":
 
     channel.queue_declare(queue='ApiFileQ')
     channel.queue_declare(queue='ModelFileQ') 
-    channel.queue_declare(queue='FileInterfaceIncidentsQ')
-    channel.queue_declare(queue='FileInterfaceLtaQ') 
 
     channel.basic_consume(queue='ModelFileQ', on_message_callback=callbackLta, auto_ack=True)
     channel.basic_consume(queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
