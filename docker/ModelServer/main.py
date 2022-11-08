@@ -17,12 +17,8 @@ def get_prediction(file):
     count_result = count_model(input_image)
     # count_result.render()
 
-    print("juspi bangke")
-
     congestion_result = congestion_model(input_image)
     # congestion_result.render()
-
-    print("juspi bangsat")
 
     count_vehicles = list(map(len, count_result.pandas().xyxy))
     congestions = list(map(lambda x: min(
@@ -41,7 +37,6 @@ def get_prediction(file):
     # img_string = base64.b64encode(bytes_io.getvalue())
     # congestion_img_strings = [img_string]
 
-    print("halo 2")
 
     # Image.open(io.BytesIO(base64.b64decode(img_string))) # to build Image
     # return Response(content = io.BytesIO(base64.b64decode(img_string)).getvalue(), media_type = "image/jpeg")
