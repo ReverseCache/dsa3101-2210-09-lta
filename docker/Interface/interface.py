@@ -4,56 +4,49 @@ import time
 
 
 def callbackONE(channel, method, properties, body):
-    print(" [x] Received %r" % body)
+    '''
+    ASSUME BODY in bytes is serialised byte
+    '''
+    print(" [x] Received input" % body)
     try:
-        '''
-        ASSUME BODY in bytes is serialised byte
-        '''
-
-        # credentials = pika.PlainCredentials("guest", "guest")
-
-        # connection = pika.BlockingConnection(
-        #     pika.ConnectionParameters("rabbitmq", 5672, "/", credentials)
-        # )
-        # channel = connection.channel()
-        # # Api to Model queue
-        
-
         message = body
-
-        channel.basic_publish(
-            exchange="", routing_key="InterfaceModelQ", body=message)
+        channel.basic_publish(exchange="", routing_key="InterfaceModelQ", body=message)
         print(" [x] Sent bytes Body json to RabbitMQ")
-        connection.close()
-
     except Exception as e:
         print("failed to send message")
         print(str(e))
 
+def callbackShow(channel, method, properties, body):
+    # Test if prediction succesfully reach interface
+    # pred = json.loads(json.loads(body))
+    with open('prediction.json', 'w') as outfile:
+        json.dump(json.loads(body.decode('utf-8').replace("'", '"')), outfile, indent=4)
+    #
+
+    message = body
+    channel.basic_publish(exchange="", routing_key="InterfaceClientQ", body=message)
+
 if __name__ == "__main__":
-    credentials = pika.PlainCredentials("guest", "guest")
     while True:
         try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            print(1)
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000) #added heartbeat
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
+            print(2)
+            channel = connection.channel()
             break
         except Exception as e:
-            print(str(e))
-            time.sleep(10)
-
-    channel = connection.channel()
+            print("Waiting for connection")
+            time.sleep(5)
 
     channel.queue_declare(queue='ClientInterfaceQ')
-
     channel.queue_declare(queue='InterfaceModelQ')
+    channel.queue_declare(queue='ModelInterfaceQ')
+    channel.queue_declare(queue='InterfaceClientQ')
 
     channel.basic_consume(queue='ClientInterfaceQ', on_message_callback = callbackONE, auto_ack=True)
+    channel.basic_consume(queue='ModelInterfaceQ', on_message_callback = callbackShow, auto_ack=True)
 
     channel.start_consuming()
-
-    # channel.queue_declare(queue='InterfaceModelQ')
-
-    # channel.basic_consume(queue='InterfaceModelQ', on_message_callback = callbackONE, auto_ack=True)
-
-    # channel.start_consuming()

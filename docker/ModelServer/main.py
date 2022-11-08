@@ -11,36 +11,50 @@ import time
 
 #def get_prediction(file: bytes = File(...)):
 def get_prediction(file):
-    input_image = get_image_from_bytes(file)
+    print('get prediction executed')
+    input_image = Image.open(io.BytesIO(base64.b64decode(file)))
+    # input_image = get_image_from_bytes(file)
     count_result = count_model(input_image)
     count_result.render()
 
+    print("juspi bangke")
+
     congestion_result = congestion_model(input_image)
     congestion_result.render()
+
+    print("juspi bangsat")
 
     count_vehicles = list(map(len, count_result.pandas().xyxy))
     congestions = list(map(lambda x: min(
             sum(x["name"] == "congested"), 1), congestion_result.pandas().xyxy))
 
-    bytes_io = io.BytesIO()
-    img_base64 = Image.fromarray(count_result.ims[0])
-    img_base64.save(bytes_io, format="jpeg")
-    img_string = base64.b64encode(bytes_io.getvalue())
-    count_img_strings = [img_string]
+    # print("halo 1")
+    # bytes_io = io.BytesIO()
+    # img_base64 = Image.fromarray(count_result.ims[0])
+    # img_base64.save(bytes_io, format="jpeg")
+    # img_string = base64.b64encode(bytes_io.getvalue())
+    # count_img_strings = [img_string]
 
-    bytes_io = io.BytesIO()
-    img_base64 = Image.fromarray(congestion_result.ims[0])
-    img_base64.save(bytes_io, format="jpeg")
-    img_string = base64.b64encode(bytes_io.getvalue())
-    congestion_img_strings = [img_string]
+    # bytes_io = io.BytesIO()
+    # img_base64 = Image.fromarray(congestion_result.ims[0])
+    # img_base64.save(bytes_io, format="jpeg")
+    # img_string = base64.b64encode(bytes_io.getvalue())
+    # congestion_img_strings = [img_string]
+
+    print("halo 2")
 
     # Image.open(io.BytesIO(base64.b64decode(img_string))) # to build Image
     # return Response(content = io.BytesIO(base64.b64decode(img_string)).getvalue(), media_type = "image/jpeg")
 
-    output_payload = {"count_img_strings": count_img_strings,
-                      "congestion_img_strings": congestion_img_strings,
-                      "count": count_vehicles,
+    # output_payload = {"count_img_strings": count_img_strings,
+    #                   "congestion_img_strings": congestion_img_strings,
+    #                   "count": count_vehicles,
+    #                   "congestion": congestions}
+
+    output_payload = {"count": count_vehicles,
                       "congestion": congestions}
+
+    print(output_payload)
     return output_payload
 
 #def get_predictions(input_payload: dict = Body(...)):
@@ -77,25 +91,6 @@ def get_predictions(input_payload):
         congestions = list(map(lambda x: min(
             sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
 
-        # count_img_strings = []
-        # for img in count_results.ims:
-        #     bytes_io = io.BytesIO()
-        #     img_base64 = Image.fromarray(img)
-        #     img_base64.save(bytes_io, format="jpeg")
-        #     img_string = base64.b64encode(bytes_io.getvalue())
-        #     count_img_strings.append(img_string)
-
-        # congestion_img_strings = []
-        # for img in congestion_results.ims:
-        #     bytes_io = io.BytesIO()
-        #     img_base64 = Image.fromarray(img)
-        #     img_base64.save(bytes_io, format="jpeg")
-        #     img_string = base64.b64encode(bytes_io.getvalue())
-        #     congestion_img_strings.append(img_string)
-
-        # output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions,
-        #                   "count_img_strings": count_img_strings, "congestion_img_strings": congestion_img_strings}
-        
         output_payload = {"camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
 
         return output_payload  # uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -113,8 +108,7 @@ def callback87(channel, method, properties, body):
 
         message = json.dumps([output_payload])
 
-        channel.basic_publish(
-            exchange="", routing_key="ModelFileQ", body=message)
+        channel.basic_publish(exchange="", routing_key="ModelFileQ", body=message)
         
         print(" [x] Sent prediction87S json to RabbitMQ")
 
@@ -129,13 +123,11 @@ def callbackONE(channel, method, properties, body):
         '''
         ASSUME BODY in bytes is serialised byte
         '''
-        output_payload = get_prediction(body).to_json(orient='records')
+        output_payload = get_prediction(body)
 
-        message = json.dumps(output_payload)
-        channel.basic_publish(
-            exchange="", routing_key="ModelInterfaceQ", body=message)
+        message = json.dumps([output_payload])
+        channel.basic_publish(exchange="", routing_key="ModelInterfaceQ", body=message)
 
-        channel.basic_ack(delivery_tag = method.delivery_tag)
         print(" [x] Sent predictionONE json to RabbitMQ")
 
     except Exception as e:
