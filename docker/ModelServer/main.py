@@ -15,12 +15,12 @@ def get_prediction(file):
     input_image = Image.open(io.BytesIO(base64.b64decode(file)))
     # input_image = get_image_from_bytes(file)
     count_result = count_model(input_image)
-    count_result.render()
+    # count_result.render()
 
     print("juspi bangke")
 
     congestion_result = congestion_model(input_image)
-    congestion_result.render()
+    # congestion_result.render()
 
     print("juspi bangsat")
 
@@ -82,10 +82,10 @@ def get_predictions(input_payload):
 
     if input_images:
         count_results = count_model(input_images)
-        count_results.render()
+        # count_results.render()
 
         congestion_results = congestion_model(input_images)
-        congestion_results.render()
+        # congestion_results.render()
 
         count_vehicles = list(map(len, count_results.pandas().xyxy))
         congestions = list(map(lambda x: min(
