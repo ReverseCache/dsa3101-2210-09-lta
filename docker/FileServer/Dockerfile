@@ -9,8 +9,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY requirements.txt ./
+COPY . ./
 RUN pip3 install -r requirements.txt
 
-COPY Fileserver.py ./
-CMD ["python3" , "./Fileserver.py"] 
+CMD ["python3" , "./file_main.py"] 
