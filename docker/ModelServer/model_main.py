@@ -85,6 +85,7 @@ def callback87(channel, method, properties, body):
 
 
 if __name__ == "__main__":
+    # Retrieves count and congestion model
     count_model = get_count_model()
     congestion_model = get_congestion_model()
 
