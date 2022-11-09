@@ -90,7 +90,7 @@ def get_predictions(input_payload):
         congestions = list(map(lambda x: min(
             sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
 
-        output_payload = {"rainfall": rainfalls, "latitude": latitudes, "longitude": longitudes,
+        output_payload = {"rainfall": rainfalls, "latitude": latitudes, "longitude": longitudes, "image_links": image_links,
             "camera_id": camera_ids, "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
 
         return output_payload  # uvicorn main:app --reload --host 0.0.0.0 --port 8000
