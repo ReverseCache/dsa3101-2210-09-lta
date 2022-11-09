@@ -1,111 +1,97 @@
 import json
+import os
 import pika
 import time
-import os
+
 from datetime import datetime, timedelta
 
-def saveIncidentsBody(serialised_message): #called
-    incidents_data = json.loads(json.loads(serialised_message))
+# Saves incidents_data JSON
+def callbackIncidents(channel, method, properties, body):
+    print(" [ApiServer -> FileServer] Received incidents_data JSON")
+    incidents_data = json.loads(json.loads(body))
     with open('incidents_data.json', 'w') as outfile:
         json.dump(incidents_data, outfile, indent=4)
-    print("Traffic Incidents saved to disk")
 
-def callbackIncidents(channel, method, properties, body):
-    saveIncidentsBody(body)
-
-def saveLta(serialised_message): #called
-    ltadump = json.loads(serialised_message.decode('utf-8').replace("'", '"'))
+# Saves lta_dump_predictions JSON
+def callbackLta(channel, method, properties, body):
+    print(" [ModelServer -> FileServer] Received lta_dump_predictions JSON")
+    lta_dump_predictions = json.loads(body.decode('utf-8').replace("'", '"'))
     currentDateTime = datetime.now() + timedelta(hours = 8)
     currentDateTimeString = currentDateTime.strftime("%Y_%m_%d_%H_%M_%S")
 
-    if not os.path.exists("ltadump/"):
-        os.makedirs("ltadump/")
+    if not os.path.exists("lta_dump_predictions/"):
+        os.makedirs("lta_dump_predictions/")
+    with open(f"lta_dump_predictions/{currentDateTimeString}.json", 'w') as outfile:
+        json.dump(lta_dump_predictions, outfile, indent=4)
 
-    with open(f"ltadump/{currentDateTimeString}.json", 'w') as outfile:
-        json.dump(ltadump, outfile, indent=4)
-    print("LTA dump saved to disk") #
-
-def callbackLta(channel, method, properties, body):
-    saveLta(body)
-
+# Sends JSON file InterfaceServer
 def callbackInterfaceFile(channel, method, properties, body):
+    # Sends incidents_data JSON
     if properties.headers.get("key") == "Incidents":
+        print(" [InterfaceServer -> FileServer] Received incidents request")
+        # Sends nothing if the file does not exist
         if not os.path.exists("incidents_data.json"):
             channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
                 properties=pika.BasicProperties(headers={'key': 'Incidents'}), body='[]')
-
-        f = open("incidents_data.json")
-        message = json.dumps(json.load(f))
-        channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+            print(" [InterfaceServer -> FileServer] Sends nothing")
+        # Sends incidents_data JSON otherwise
+        else:
+            f = open("incidents_data.json")
+            message = json.dumps(json.load(f))
+            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
                 properties=pika.BasicProperties(headers={'key': 'Incidents'}), body=message)
+            print(" [InterfaceServer -> FileServer] Sends incidents_data JSON")
 
+    # Sends 40_mins_lta_dump_predictions JSON
     elif properties.headers.get("key") == "Ltadump":
-        if not os.path.exists("ltadump/"):
+        print(" [InterfaceServer -> FileServer] Received ltaDump request")
+        # Sends nothing if the folder does not exist
+        if not os.path.exists("lta_dump_predictions/"):
             channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
                 properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body='[]')
+            print(" [InterfaceServer -> FileServer] Sends nothing")
+                
+        # Sends the 40_mins_lta_dump_predictions JSON otherwise
+        else:
+            FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 40)
+            FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
+            last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("lta_dump_predictions/")))
 
-        FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 30)
-        FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
-        
-        last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("ltadump/")))
+            output_files = [{}]
+            for fileName in last40MinsFiles:
+                output_files[0][fileName] = json.load(open(f"lta_dump_predictions/{fileName}"))
 
-        output_files = [{}]
-        for fileName in last40MinsFiles:
-            output_files[0][fileName] = json.load(open(f"ltadump/{fileName}"))
-
-        message = json.dumps(output_files)
-        channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
+            message = json.dumps(output_files)
+            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
                 properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body=message)
-
-# def callbackPostIncidents(channel, method, properties, body):
-#     if not os.path.exists("incidents_data.json"):
-#         channel.basic_publish(exchange="", routing_key="FileInterfaceIncidentsQ", body='[]')
-
-#     f = open("incidents_data.json")
-#     message = json.dumps([json.load(f)])
-#     channel.basic_publish(exchange="", routing_key="FileInterfaceIncidentsQ", body=message)
-
-# def callbackPostLtadump(channel, method, properties, body):
-#     if not os.path.exists("ltadump/"):
-#         channel.basic_publish(exchange="", routing_key="FileInterfaceLtadumpQ", body='[]')
-
-#     FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 30)
-#     FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
-    
-#     last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("ltadump/")))
-
-#     output_files = []
-#     for fileName in last40MinsFiles:
-#         output_files += json.load(open(f"ltadump/{fileName}"))
-
-#     message = json.dumps(output_files)
-#     channel.basic_publish(exchange="", routing_key="FileInterfaceLtadumpQ", body=message)
+            print(" [InterfaceServer -> FileServer] Sends 40_mins_lta_dump_predictions JSON")
 
 
 if __name__ == "__main__":
-    print("Starting Connection on FileServer!")
+    # Connects FileServer to RabbitMQ
     while True:
         try:
-            print(1)
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
             )
-            print(2)
             channel = connection.channel()
             break
-        
         except Exception as e:
-            print("Waiting for connection")
+            print("FileServer waiting for connection")
             time.sleep(5)
 
+    # Receives incidents_data JSON from ApiServer
     channel.queue_declare(queue='ApiFileQ')
+    channel.basic_consume(queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
+
+    # Receives lta_dump_predictions JSON from ModelServer
     channel.queue_declare(queue='ModelFileQ') 
+    channel.basic_consume(queue='ModelFileQ', on_message_callback=callbackLta, auto_ack=True)
+
+    # Receives message from InterfaceServer and sends JSON file to InterfaceServer
     channel.queue_declare(queue='InterfaceFileQ')
     channel.queue_declare(queue='FileInterfaceQ')
-
-    channel.basic_consume(queue='ModelFileQ', on_message_callback=callbackLta, auto_ack=True)
-    channel.basic_consume(queue='ApiFileQ', on_message_callback=callbackIncidents, auto_ack=True)
     channel.basic_consume(queue='InterfaceFileQ', on_message_callback=callbackInterfaceFile, auto_ack=True)
 
     channel.start_consuming()
