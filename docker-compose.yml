@@ -77,16 +77,18 @@ services:
     depends_on:
       - rabbitmq
 
-  # frontend:
-  #   hostname: feservice
-  #   container_name: feservice
-  #   build:
-  #     context: /docker/FrontEnd
-  #     dockerfile: Dockerfile
-  #   networks:
-  #     - bridge-net
-  #   # ports:
-  #   #   - ${FE_Port}:8000
+  frontend:
+    hostname: feservice
+    container_name: feservice
+    build:
+      context: /docker/FrontEnd
+      dockerfile: Dockerfile
+    networks:
+      - bridge-net
+    ports:
+      - ${FE_Port}:8000
+    depends_on:
+      - rabbitmq
 
 networks:
   bridge-net:
