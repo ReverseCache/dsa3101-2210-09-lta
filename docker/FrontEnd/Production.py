@@ -18,8 +18,8 @@ df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
-main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
-latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
+main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
 fig = px.scatter_mapbox(latest_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
                         hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
@@ -178,8 +178,8 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 def update_scatter_map(cam_id):
 
     #get latest data
-    main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
-    latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
 
     if cam_id:
         fig = px.scatter_mapbox(latest_df , lat="Latitude", lon="Longitude", color="Count", size="Count",
@@ -214,8 +214,8 @@ def update_camera_dd(region_dd):
 def update_map(cam_id):
 
     #get latest data
-    main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
-    latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     
     df_map = latest_df
     df_map = df_map[df_map['CameraID'] == cam_id]
@@ -338,8 +338,11 @@ def update_image(cam_id):
 
 def update_count(cam_id):
     count = 'please select a camera'
+    #get latest data
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     if cam_id:
-        count = main_df.loc[main_df.CameraID == cam_id, 'Count'].values[0]
+        count = latest_df.loc[main_df.CameraID == cam_id, 'Count'].values[0]
     return f'Car count: {count}'
 
 @app.callback(
@@ -348,8 +351,11 @@ def update_count(cam_id):
 
 def update_count(cam_id):
     jam = 'please select a camera'
+    #get latest data
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     if cam_id:
-        jam = main_df.loc[main_df.CameraID == cam_id, 'is_jam'].values[0]
+        jam = latest_df.loc[main_df.CameraID == cam_id, 'is_jam'].values[0]
         if jam == 1:
             jam="Yes"
         else:
@@ -362,8 +368,11 @@ def update_count(cam_id):
 
 def update_rainfall(cam_id):
     rainfall = 'please select a camera'
+    #get latest data
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     if cam_id:
-        rainfall = main_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
+        rainfall = latest_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
     return f'Rainfall in mm: {rainfall}'
 
 @app.callback(
