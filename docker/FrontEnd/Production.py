@@ -18,10 +18,12 @@ df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
-#fig = px.scatter_mapbox(main_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-#                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
-#                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
-#fig.update_layout(mapbox_style="open-street-map")
+main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
+latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
+fig = px.scatter_mapbox(latest_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
+                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+fig.update_layout(mapbox_style="open-street-map")
 
 
 # interactive map displaying single camera
@@ -57,7 +59,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             html.H2('Real-time Count of Cars'),
-            dcc.Graph(id='scatter_map',
+            dcc.Graph(figure=fig, id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
     ),
@@ -221,8 +223,6 @@ def update_map(cam_id):
     for i in range(len(latest_df)):
         d=dict(name = latest_df.loc[i,'RoadName'], lat = latest_df.loc[i,'Latitude'], lon = latest_df.loc[i,'Longitude'])
         camera.append(d)
-    geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
-
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
