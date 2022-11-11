@@ -27,7 +27,7 @@ fig.update_layout(mapbox_style="open-street-map")
 # interactive map displaying single camera
 camera = []
 for i in range(len(main_df)):
-    d=dict(name = main_df.iloc[i,6], lat = main_df.iloc[i,1], lon = main_df.iloc[i,2])
+    d=dict(name = main_df.loc[i,'RoadName'], lat = main_df.loc[i,'Latitude'], lon = main_df.loc[i,'Longitude'])
     camera.append(d)
 # Create drop down options.
 dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
@@ -57,7 +57,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             html.H2('Real-time Count of Cars'),
-            dcc.Graph(figure=fig,
+            dcc.Graph(figure=fig, id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
     ),
@@ -168,7 +168,24 @@ app.layout = html.Div([
 ],
 style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
+# Create a callback from the CameraID dropdown to the scatter map
+@app.callback(
+    Output("scatter_map'", "figure"),
+    Input("camera_dd", "value"))
 
+def update_scatter_map(cam_id):
+
+    #get latest data
+    main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
+    latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
+
+    if cam_id:
+        fig = px.scatter_mapbox(latest_df , lat="Latitude", lon="Longitude", color="Count", size="Count",
+                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+        fig.update_layout(mapbox_style="open-street-map")
+    
+    return fig
 
 # Create a callback from the Region dropdown to the CameraID Dropdown
 @app.callback(
@@ -187,19 +204,23 @@ def update_camera_dd(region_dd):
     
     return formatted_relevant_camera_options
 
-# Create a callback from the CameraID dropdown to the map
+# Create a callback from the CameraID dropdown to the location map
 @app.callback(
     Output("map", "children"),
     Input("camera_dd", "value"))
 
 def update_map(cam_id):
+
+    #get latest data
+    main_df.sort_values(by='images_datetime', ascending = False, inplace=True)
+    latest_df = main_df.loc[main_df['images_datetime'] == main_df['images_datetime'].head(1).values[0]]
     
-    df_map = main_df.copy()
+    df_map = latest_df
     df_map = df_map[df_map['CameraID'] == cam_id]
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
-        cam = [dict(name = df_map.iloc[0,0], lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
+        cam = [dict(name = df_map.loc[0,'CameraID'], lat = df_map.loc[0,'Latitude'], lon = df_map.loc[0,'Longitude'])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
