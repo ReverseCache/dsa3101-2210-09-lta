@@ -18,22 +18,22 @@ df = pd.read_csv('traffic_count_sample.csv')
 df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
-fig = px.scatter_mapbox(main_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
-                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
-fig.update_layout(mapbox_style="open-street-map")
+#fig = px.scatter_mapbox(main_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
+#                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+#                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+#fig.update_layout(mapbox_style="open-street-map")
 
 
 # interactive map displaying single camera
-camera = []
-for i in range(len(main_df)):
-    d=dict(name = main_df.loc[i,'RoadName'], lat = main_df.loc[i,'Latitude'], lon = main_df.loc[i,'Longitude'])
-    camera.append(d)
+#camera = []
+#for i in range(len(main_df)):
+#    d=dict(name = main_df.loc[i,'RoadName'], lat = main_df.loc[i,'Latitude'], lon = main_df.loc[i,'Longitude'])
+#    camera.append(d)
 # Create drop down options.
-dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
-dd_defaults = [o["value"] for o in dd_options]
+#dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
+#dd_defaults = [o["value"] for o in dd_options]
 # Generate geojson with a marker for each city and name as tooltip.
-geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
+#geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
 region = list(main_df['Region'].unique())
 cameraID = list(main_df['CameraID'].unique())
@@ -57,7 +57,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             html.H2('Real-time Count of Cars'),
-            dcc.Graph(figure=fig, id='scatter_map',
+            dcc.Graph(id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
     ),
@@ -92,7 +92,7 @@ app.layout = html.Div([
     dl.Map(
         children=[
             dl.TileLayer(),
-            dl.GeoJSON(data=geojson, id="geojson", zoomToBounds=True)
+            dl.GeoJSON(id="geojson", zoomToBounds=True)
         ],
         style={'width': '80%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"
         ),
@@ -170,7 +170,7 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 # Create a callback from the CameraID dropdown to the scatter map
 @app.callback(
-    Output("scatter_map'", "figure"),
+    Output("scatter_map", "figure"),
     Input("camera_dd", "value"))
 
 def update_scatter_map(cam_id):
@@ -217,6 +217,12 @@ def update_map(cam_id):
     
     df_map = latest_df
     df_map = df_map[df_map['CameraID'] == cam_id]
+    camera = []
+    for i in range(len(latest_df)):
+        d=dict(name = latest_df.loc[i,'RoadName'], lat = latest_df.loc[i,'Latitude'], lon = latest_df.loc[i,'Longitude'])
+        camera.append(d)
+    geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
+
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
