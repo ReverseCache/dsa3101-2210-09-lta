@@ -9,18 +9,33 @@ from PIL import Image
 import pandas as pd
 import plotly.express as px
 import pika
+import time
+
+while True:
+    try:
+        main_df = pd.read_csv('Ltadump.csv')
+        incidents_df=pd.read_csv('Incidents.csv')
+    except:
+        time.sleep(10)
+    else:
+        main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+        latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+        break
 
 
+<<<<<<< HEAD
 
 main_df = pd.read_csv('main_df.csv')
 incidents_df=pd.read_csv('traffic_incidents.csv')
 df = pd.read_csv('traffic_count_sample.csv')
+=======
+# df = pd.read_csv('traffic_count_sample.csv')
+# df2 = pd.read_csv('traffic_his_sample.csv')
+>>>>>>> abdcd2c3aee8309ad60577482fbfc3b0e1bb1fd1
 
 #scatter map plot showing count of cars across singapore
-main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
-fig = px.scatter_mapbox(latest_df, lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+fig = px.scatter_mapbox(latest_df, lat="latitude", lon="longitude", color="count", size="count",
+                        hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
 fig.update_layout(mapbox_style="open-street-map")
 
@@ -28,7 +43,7 @@ fig.update_layout(mapbox_style="open-street-map")
 # interactive map displaying single camera
 #camera = []
 #for i in range(len(main_df)):
-#    d=dict(name = main_df.loc[i,'RoadName'], lat = main_df.loc[i,'Latitude'], lon = main_df.loc[i,'Longitude'])
+#    d=dict(name = main_df.loc[i,'roadname'], lat = main_df.loc[i,'latitude'], lon = main_df.loc[i,'longitude'])
 #    camera.append(d)
 # Create drop down options.
 #dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
@@ -36,10 +51,10 @@ fig.update_layout(mapbox_style="open-street-map")
 # Generate geojson with a marker for each city and name as tooltip.
 #geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
-region = list(main_df['Region'].unique())
-cameraID = list(main_df['CameraID'].unique())
-RoadName = list(main_df['RoadName'].unique())
-cam_road=main_df[['CameraID', 'RoadName']].values.tolist()
+region = list(latest_df['region'].unique())
+camera_id = list(latest_df['camera_id'].unique())
+roadname = list(latest_df['roadname'].unique())
+cam_road=latest_df[['camera_id', 'roadname']].values.tolist()
 
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -57,7 +72,7 @@ app.layout = html.Div([
     # map to show count of cars across Singapore
     html.Div(
         children=[
-            html.H2('Real-time Count of Cars'),
+            html.H2('Real-time count of Cars'),
             dcc.Graph(figure=fig, id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
@@ -70,7 +85,7 @@ app.layout = html.Div([
             html.Br(),
             html.Div([
                 dbc.Col([
-                    html.H4('Select a Region'),
+                    html.H4('Select a region'),
                         dcc.Dropdown(
                         id='region_dd',
                         options=[{'label':r, 'value':r} for r in region],
@@ -123,7 +138,7 @@ app.layout = html.Div([
 
     # Historical data
     html.Div([
-        html.H2('Historical Count of Cars'),
+        html.H2('Historical count of Cars'),
         dcc.Graph(id='line_graph',
                   style={'width': '90%', 'margin': 'auto'}),
         #update the graph
@@ -174,7 +189,7 @@ app.layout = html.Div([
 ],
 style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
-# Create a callback from the CameraID dropdown to the scatter map
+# Create a callback from the camera_id dropdown to the scatter map
 @app.callback(
     Output("scatter_map", "figure"),
     Input("camera_dd", "value"))
@@ -183,17 +198,17 @@ def update_scatter_map(cam_id):
 
     #get latest data
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
 
     if cam_id:
-        fig = px.scatter_mapbox(latest_df , lat="Latitude", lon="Longitude", color="Count", size="Count",
-                        hover_data={'Latitude':False, 'Longitude': False, 'RoadName':True, 'Region':True, 'Count':True},
+        fig = px.scatter_mapbox(latest_df , lat="latitude", lon="longitude", color="count", size="count",
+                        hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
         fig.update_layout(mapbox_style="open-street-map")
     
     return fig
 
-# Create a callback from the Region dropdown to the CameraID Dropdown
+# Create a callback from the region dropdown to the camera_id Dropdown
 @app.callback(
     Output('camera_dd', 'options'),
     Input('region_dd', 'value'))
@@ -202,15 +217,15 @@ def update_camera_dd(region_dd):
   
     formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in cam_road]
     if region_dd:
-        region_camera = main_df[['Region', 'CameraID', 'RoadName']].drop_duplicates()
-        relevant_camera_options = region_camera[region_camera['Region'] == region_dd][['CameraID', 'RoadName']].values.tolist()
+        region_camera = main_df[['region', 'camera_id', 'roadname']].drop_duplicates()
+        relevant_camera_options = region_camera[region_camera['region'] == region_dd][['camera_id', 'roadname']].values.tolist()
     
         # Create and return formatted relevant options with the same label and value
         formatted_relevant_camera_options = [{'label':x[1], 'value':x[0]} for x in relevant_camera_options]
     
     return formatted_relevant_camera_options
 
-# Create a callback from the CameraID dropdown to the location map
+# Create a callback from the camera_id dropdown to the location map
 @app.callback(
     Output("map", "children"),
     Input("camera_dd", "value"))
@@ -219,18 +234,18 @@ def update_map(cam_id):
 
     #get latest data
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     
     df_map = latest_df
-    df_map = df_map[df_map['CameraID'] == cam_id]
+    df_map = df_map[df_map['camera_id'] == cam_id]
     camera = []
     for i in range(len(latest_df)):
-        d=dict(name = latest_df.loc[i,'RoadName'], lat = latest_df.loc[i,'Latitude'], lon = latest_df.loc[i,'Longitude'])
+        d=dict(name = latest_df.loc[i,'roadname'], lat = latest_df.loc[i,'latitude'], lon = latest_df.loc[i,'longitude'])
         camera.append(d)
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
-        cam = [dict(name = df_map.loc[0,'CameraID'], lat = df_map.loc[0,'Latitude'], lon = df_map.loc[0,'Longitude'])]   
+        cam = [dict(name = df_map.loc[0,'camera_id'], lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
@@ -252,20 +267,33 @@ def update_map(cam_id):
 def display_plot(reg, cam_id, n):
     df1=main_df.sort_values('images_datetime').groupby('camera_id').tail(7)
     if reg and cam_id:
+<<<<<<< HEAD
         ft1 = df1[df1.region==reg]
+=======
+        ft1 = df2[df2.region==reg]
+>>>>>>> abdcd2c3aee8309ad60577482fbfc3b0e1bb1fd1
         # clear the road option to view all cameras within region
         if cam_id:
             ft1 = ft1[ft1.camera_id==cam_id]
 
     if reg:
+<<<<<<< HEAD
         ft1 = df1[df1.region==reg]
+=======
+        ft1 = df2[df2.region==reg]
+>>>>>>> abdcd2c3aee8309ad60577482fbfc3b0e1bb1fd1
 
     if cam_id:
         ft1 = df1[df1.camera_id==cam_id]
 
     elif reg is None and cam_id is None:
+<<<<<<< HEAD
         ft1 = df1
     fig = px.line(ft1, x='images_datetime', y='count', color='camera_id',
+=======
+        ft1 = df2
+    fig = px.line(ft1, x='Time', y='count', color='Id',
+>>>>>>> abdcd2c3aee8309ad60577482fbfc3b0e1bb1fd1
                   title='Past 30 minutes', markers=True)
     return fig
 
@@ -312,23 +340,22 @@ def display_metric(data):
                 
         return ncar, jam
 
-# Create a callback from the CameraID dropdown to the traffic image
+# Create a callback from the camera_id dropdown to the traffic image
 @app.callback(
     Output("traffic_image", "src"),
     Input("camera_dd", "value"))
 
 def update_image(cam_id):
-
     link = 'https://i.ibb.co/k0Qty5c/no-camera-selected.png'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
     if cam_id:
         traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
-        link = traffic_image_df.loc[traffic_image_df.CameraID == str(cam_id), 'ImageLink'].values[0]
+        link = traffic_image_df.loc[traffic_image_df.camera_id == str(cam_id), 'ImageLink'].values[0]
     return link
 
-# Create a callback from the CameraID dropdown to real time car count
+# Create a callback from the camera_id dropdown to real time car count
 @app.callback(
     Output("rt_car_count", "children"),
     Input("camera_dd", "value"))
@@ -337,9 +364,9 @@ def update_count(cam_id):
     count = 'please select a camera'
     #get latest data
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
-        count = latest_df.loc[main_df.CameraID == cam_id, 'Count'].values[0]
+        count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
     return f'Car count: {count}'
 
 @app.callback(
@@ -350,9 +377,9 @@ def update_count(cam_id):
     jam = 'please select a camera'
     #get latest data
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
-        jam = latest_df.loc[main_df.CameraID == cam_id, 'is_jam'].values[0]
+        jam = latest_df.loc[latest_df.camera_id == cam_id, 'is_jam'].values[0]
         if jam == 1:
             jam="Yes"
         else:
@@ -367,9 +394,9 @@ def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     #get latest data
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
-        rainfall = latest_df.loc[main_df.CameraID == cam_id, 'rainfall'].values[0]
+        rainfall = latest_df.loc[main_df.camera_id == cam_id, 'rainfall'].values[0]
     return f'Rainfall in mm: {rainfall}'
 
 @app.callback(
@@ -381,9 +408,9 @@ def update_incidents(cam_id):
     incident_res=[]
     counter=1
     if cam_id:
-        incident_res.append('%s incidents nearby, '%(len(incidents_df.loc[incidents_df['CameraID']==cam_id,].index)))
+        incident_res.append('%s incidents nearby, '%(len(incidents_df.loc[incidents_df['camera_id']==cam_id,].index)))
         incident_res.append(html.Br())
-        for i in incidents_df.loc[incidents_df['CameraID']==cam_id,]['Message'].to_list():
+        for i in incidents_df.loc[incidents_df['camera_id']==cam_id,]['Message'].to_list():
             incident_res+= " %s. %s "%(counter,i)
             incident_res.append(html.Br())
             counter += 1
