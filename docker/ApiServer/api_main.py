@@ -119,7 +119,7 @@ if __name__ == "__main__":
             time.sleep(5)
 
     # Does 100 API calls before shutting down
-    for i in range(100):
+    while True:
         lta_dump_json, incidents_data_json = get_payload()
 
         # Sends lta_dump JSON to ModelServer
