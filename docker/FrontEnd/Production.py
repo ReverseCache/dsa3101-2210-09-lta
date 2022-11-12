@@ -15,18 +15,17 @@ import os
 #  Waits for the Ltadump file to be created first before running
 while True:
     try:
-        main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+        main_df = pd.read_csv('Ltadump.csv')
         incidents_df=pd.read_csv('Incidents.csv')
     except:
         time.sleep(10)
     else:
-        main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
-        incidents_df=pd.read_csv('Incidents.csv',converters={'camera_id':str})
+        main_df = pd.read_csv('Ltadump.csv')
+        incidents_df=pd.read_csv('Incidents.csv')
         main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
         main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
-
 
 # df = pd.read_csv('traffic_count_sample.csv')
 # df2 = pd.read_csv('traffic_his_sample.csv')
@@ -195,7 +194,7 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 def update_scatter_map(cam_id):
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+    main_df = pd.read_csv('Ltadump.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
@@ -237,13 +236,13 @@ def update_camera_dd(region_dd):
 def update_map(cam_id):
 
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+    main_df = pd.read_csv('Ltadump.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     
     df_map = latest_df
-    df_map = df_map[df_map['camera_id'] == cam_id]
+    df_map = df_map[df_map['camera_id'] == str(cam_id)]
     camera = []
     for i in range(len(latest_df)):
         d=dict(name = latest_df.loc[i,'roadname'], lat = latest_df.loc[i,'latitude'], lon = latest_df.loc[i,'longitude'])
@@ -251,7 +250,7 @@ def update_map(cam_id):
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
-        cam = [dict(name = df_map.loc[0,'camera_id'], lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
+        cam = [dict(name = str(df_map.loc[0,'camera_id']), lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
@@ -324,13 +323,13 @@ def display_metric(data):
         #while loop to check ImagePrediction.csv available or not -> sleep if yes u display and destroy
         while True:
             try:
-                imp=pd.read_csv("Imageprediction.csv")
+                imp=pd.read_csv("ImagePrediction.csv")
             except:
                 time.sleep(5)
             else:
                 ncar=imp['count'][0]
                 jam=imp['congestion'][0]
-                os.remove("Imageprediction.csv")
+                os.remove("ImagePrediction.csv")
                 break
                 
         return ncar, jam
@@ -351,8 +350,9 @@ def update_image(cam_id):
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
         link = traffic_image_df.loc[traffic_image_df.camera_id == str(cam_id), 'ImageLink'].values[0]
         count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
+        jam = latest_df.loc[latest_df.camera_id == cam_id, 'congestion'].values[0]
 
-    return link,f'Car count: {count}'
+    return link,f'Car count: {count}',
 
 # Create a callback from the camera_id dropdown to real time car count
 # @app.callback(
@@ -375,7 +375,7 @@ def update_image(cam_id):
 def update_count(cam_id):
     jam = 'please select a camera'
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+    main_df = pd.read_csv('Ltadump.csv')
     incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
@@ -395,7 +395,7 @@ def update_count(cam_id):
 def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+    main_df = pd.read_csv('Ltadump.csv')
     incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
