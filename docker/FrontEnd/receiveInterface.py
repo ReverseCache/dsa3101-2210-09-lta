@@ -17,7 +17,7 @@ def callbackInterfaceClient(channel, method, properties, body):
         # process json string (body) to json
         # json_file to dataframe (if needed)
         # output saved to a csv in FrontEnd with name Incidents.csv
-        pd.DataFrame(json.loads(body)).to_csv('Incidents.csv')
+        pd.DataFrame(json.loads(body)).to_csv('Incidents.csv',index=False)
 
     # Sends ltaDump request
     elif properties.headers.get("key") == "Ltadump":
@@ -35,7 +35,7 @@ def callbackInterfaceClient(channel, method, properties, body):
         res=pd.concat(res)
         res=res.merge(pd.read_csv('traffic_camera_region_roadname.csv',converters={'camera_id':str}),'left','camera_id')
         res=res[['camera_id','latitude','longitude','region','rainfall','image_links','roadname','count','congestion','images_datetime']]
-        res.to_csv('Ltadump.csv')
+        res.to_csv('Ltadump.csv',index=False)
 
 if __name__ == "__main__":
     # Connects ApiServer to RabbitMQ
