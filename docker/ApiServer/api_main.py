@@ -118,7 +118,7 @@ if __name__ == "__main__":
             print("ApiServer waiting for connection")
             time.sleep(5)
 
-    # Does 100 API calls before shutting down
+    # Runs the API calls forever
     while True:
         lta_dump_json, incidents_data_json = get_payload()
 
