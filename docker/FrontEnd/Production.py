@@ -15,7 +15,6 @@ import pika
 main_df = pd.read_csv('main_df.csv')
 incidents_df=pd.read_csv('traffic_incidents.csv')
 df = pd.read_csv('traffic_count_sample.csv')
-df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
 main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
@@ -126,7 +125,12 @@ app.layout = html.Div([
     html.Div([
         html.H2('Historical Count of Cars'),
         dcc.Graph(id='line_graph',
-                  style={'width': '90%', 'margin': 'auto'})
+                  style={'width': '90%', 'margin': 'auto'}),
+        #update the graph
+        dcc.Interval(
+            id='interval',
+            interval=150*1000
+        )
         ]),
 
     html.Br(),
@@ -242,24 +246,26 @@ def update_map(cam_id):
 @app.callback(
     Output('line_graph', 'figure'), 
     Input('region_dd', 'value'),
-    Input('camera_dd', 'value'))
+    Input('camera_dd', 'value'),
+    Input('interval', 'n_intervals'))
 
-def display_plot(reg, cam_id):
+def display_plot(reg, cam_id, n):
+    df1=main_df.sort_values('images_datetime').groupby('camera_id').tail(7)
     if reg and cam_id:
-        ft1 = df2[df2.Region==reg]
+        ft1 = df1[df1.region==reg]
         # clear the road option to view all cameras within region
         if cam_id:
-            ft1 = ft1[ft1.Id==cam_id]
+            ft1 = ft1[ft1.camera_id==cam_id]
 
     if reg:
-        ft1 = df2[df2.Region==reg]
+        ft1 = df1[df1.region==reg]
 
     if cam_id:
-        ft1 = df2[df2.Id==cam_id]
+        ft1 = df1[df1.camera_id==cam_id]
 
     elif reg is None and cam_id is None:
-        ft1 = df2
-    fig = px.line(ft1, x='Time', y='Count', color='Id',
+        ft1 = df1
+    fig = px.line(ft1, x='images_datetime', y='count', color='camera_id',
                   title='Past 30 minutes', markers=True)
     return fig
 
@@ -276,44 +282,35 @@ def display_image(data):
 @app.callback(
     Output('count', 'children'),
     Output('tfjam', 'children'),
-    Input('upload-data', 'filename'))
+    Input('upload-data', 'contents'))
 
 def display_metric(data):
-    a=io.BytesIO()
+    #a=io.BytesIO()
     if data is not None:
-        img = Image.open(data) #need to encode this image to string
-        message = img.write(base64.b64encode(a.getvalue()).decode("utf-8"))
-
+        #img=base64.b64decode(data.split(',')[1])
+        #file='img.jpg'
+        #with open(file, 'wb') as f:
+        #    f.write(img)
+        #image = Image.open(file) #need to encode this image to string
+        file='img.txt'
+        with open(file, 'w') as f:
+            f.write(data.split(',')[1])
+        message=open(file).read()
         global channel
         channel.basic_publish(exchange="", routing_key="ClientInterfaceQ",
             properties=pika.BasicProperties(headers={'key': 'ImagePrediction'}), body=message)
         
         #while loop to check ImagePrediction.csv available or not -> sleep if yes u display and destroy
-        while
+        while True:
             try:
-                pd.read_csv("Imageprediction.csv")
+                imp=pd.read_csv("Imageprediction.csv")
+                ncar=imp['count'][0]
+                jam=imp['congestion'][0]
+                os.remove("Imageprediction.csv")
             except:
                 time.sleep(5)
                 
-        # else:
-
-
-        # count_vehicles, congested = get_metric()
-        # return count1, tfjam1
-    #     count_model = torch.hub.load('./yolov5', 'custom', path = './weights/count_best.pt', source='local')
-    #     congestion_model = torch.hub.load('./yolov5', 'custom', path = './weights/congestion_best.pt', source='local')
-    #     count_results = count_model(img)
-    #     congestion_results = congestion_model(img)
-    #     count_vehicles = list(map(len, count_results.pandas().xyxy))
-    #     congestions = list(map(lambda x: min(sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
-    #     if congestions[0]==1:
-    #         congested="Yes"
-    #     else:
-    #         congested="No"
-    #     return count_vehicles, congested
-    # else:
-    #     return None, None
-
+        return ncar, jam
 
 # Create a callback from the CameraID dropdown to the traffic image
 @app.callback(
