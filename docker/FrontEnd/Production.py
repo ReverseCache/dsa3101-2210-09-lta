@@ -9,13 +9,14 @@ from PIL import Image
 import pandas as pd
 import plotly.express as px
 import pika
+import time
 
 
 
-main_df = pd.read_csv('main_df.csv')
-incidents_df=pd.read_csv('traffic_incidents.csv')
-df = pd.read_csv('traffic_count_sample.csv')
-df2 = pd.read_csv('traffic_his_sample.csv')
+main_df = pd.read_csv('Ltadump.csv')
+incidents_df=pd.read_csv('Incidents.csv')
+# df = pd.read_csv('traffic_count_sample.csv')
+# df2 = pd.read_csv('traffic_his_sample.csv')
 
 #scatter map plot showing count of cars across singapore
 main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
@@ -321,7 +322,6 @@ def display_metric(data):
     Input("camera_dd", "value"))
 
 def update_image(cam_id):
-
     link = 'https://i.ibb.co/k0Qty5c/no-camera-selected.png'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
@@ -342,7 +342,7 @@ def update_count(cam_id):
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     if cam_id:
-        count = latest_df.loc[main_df.CameraID == cam_id, 'Count'].values[0]
+        count = latest_df.loc[latest_df.CameraID == cam_id, 'Count'].values[0]
     return f'Car count: {count}'
 
 @app.callback(
@@ -355,7 +355,7 @@ def update_count(cam_id):
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('CameraID').head(1)
     if cam_id:
-        jam = latest_df.loc[main_df.CameraID == cam_id, 'is_jam'].values[0]
+        jam = latest_df.loc[latest_df.CameraID == cam_id, 'is_jam'].values[0]
         if jam == 1:
             jam="Yes"
         else:
