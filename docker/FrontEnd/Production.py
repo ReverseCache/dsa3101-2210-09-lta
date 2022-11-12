@@ -11,10 +11,16 @@ import plotly.express as px
 import pika
 import time
 
+while True:
+    try:
+        main_df = pd.read_csv('Ltadump.csv')
+        incidents_df=pd.read_csv('Incidents.csv')
+    except:
+        time.sleep(10)
+    else:
+        break
 
 
-main_df = pd.read_csv('Ltadump.csv')
-incidents_df=pd.read_csv('Incidents.csv')
 # df = pd.read_csv('traffic_count_sample.csv')
 # df2 = pd.read_csv('traffic_his_sample.csv')
 
