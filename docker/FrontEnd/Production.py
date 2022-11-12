@@ -10,6 +10,7 @@ import pandas as pd
 import plotly.express as px
 import pika
 import time
+import os
 
 while True:
     try:
@@ -18,6 +19,9 @@ while True:
     except:
         time.sleep(10)
     else:
+        main_df = pd.read_csv('Ltadump.csv')
+        incidents_df=pd.read_csv('Incidents.csv')
+        main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
         main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
@@ -191,6 +195,8 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 def update_scatter_map(cam_id):
 
     #get latest data
+    main_df = pd.read_csv('Ltadump.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
 
@@ -227,6 +233,9 @@ def update_camera_dd(region_dd):
 def update_map(cam_id):
 
     #get latest data
+    main_df = pd.read_csv('Ltadump.csv')
+    incidents_df=pd.read_csv('Incidents.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     
@@ -344,7 +353,7 @@ def update_image(cam_id):
 def update_count(cam_id):
     count = 'please select a camera'
     #get latest data
-    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
         count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
@@ -357,6 +366,9 @@ def update_count(cam_id):
 def update_count(cam_id):
     jam = 'please select a camera'
     #get latest data
+    main_df = pd.read_csv('Ltadump.csv')
+    incidents_df=pd.read_csv('Incidents.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
@@ -374,6 +386,9 @@ def update_count(cam_id):
 def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     #get latest data
+    main_df = pd.read_csv('Ltadump.csv')
+    incidents_df=pd.read_csv('Incidents.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
