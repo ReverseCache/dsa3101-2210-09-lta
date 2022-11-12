@@ -20,9 +20,9 @@ if __name__ == "__main__":
 
     time.sleep(150)
     while True:
-        channel.basic_publish(exchange="", routing_key="InterfaceFileQ",
+        channel.basic_publish(exchange="", routing_key="ClientInterfaceQ",
             properties=pika.BasicProperties(headers={'key': 'Incidents'}), body='')
-        channel.basic_publish(exchange="", routing_key="InterfaceFileQ",
+        channel.basic_publish(exchange="", routing_key="ClientInterfaceQ",
             properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body='')
         time.sleep(300)
 

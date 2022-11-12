@@ -32,10 +32,10 @@ while True:
 
 
 #scatter map plot showing count of cars across singapore
-fig = px.scatter_mapbox(latest_df, lat="latitude", lon="longitude", color="count", size="count",
-                        hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
-                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
-fig.update_layout(mapbox_style="open-street-map")
+#fig = px.scatter_mapbox(latest_df, lat="latitude", lon="longitude", color="count", size="count",
+#                        hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
+#                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+#fig.update_layout(mapbox_style="open-street-map")
 
 
 # interactive map displaying single camera
@@ -71,7 +71,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             html.H2('Real-time count of Cars'),
-            dcc.Graph(figure=fig, id='scatter_map',
+            dcc.Graph(id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
     ),
@@ -199,8 +199,17 @@ def update_scatter_map(cam_id):
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+    fig = px.scatter_mapbox(latest_df , lat="latitude", lon="longitude", color="count", size="count",
+                        hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
+                        color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+    fig.update_layout(mapbox_style="open-street-map")
 
     if cam_id:
+        #get latest data
+        main_df = pd.read_csv('Ltadump.csv')
+        main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
+        main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+        latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         fig = px.scatter_mapbox(latest_df , lat="latitude", lon="longitude", color="count", size="count",
                         hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
@@ -248,7 +257,7 @@ def update_map(cam_id):
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
     if cam_id:
-        cam = [dict(name = df_map.loc[0,'camera_id'], lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
+        cam = [dict(name = str(df_map.loc[0,'camera_id']), lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
@@ -344,7 +353,7 @@ def update_image(cam_id):
     if cam_id:
         traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
-        link = traffic_image_df.loc[traffic_image_df.camera_id == str(cam_id), 'ImageLink'].values[0]
+        link = traffic_image_df.loc[traffic_image_df['camera_id'] == str(cam_id), 'ImageLink'].values[0]
     return link
 
 # Create a callback from the camera_id dropdown to real time car count
