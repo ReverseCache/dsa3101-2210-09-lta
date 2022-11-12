@@ -12,6 +12,7 @@ import pika
 import time
 import os
 
+#  Waits for the Ltadump file to be created first before running
 while True:
     try:
         main_df = pd.read_csv('Ltadump.csv')
@@ -25,7 +26,6 @@ while True:
         main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
-
 
 # df = pd.read_csv('traffic_count_sample.csv')
 # df2 = pd.read_csv('traffic_his_sample.csv')
@@ -193,7 +193,6 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
     Input("camera_dd", "value"))
 
 def update_scatter_map(cam_id):
-
     #get latest data
     main_df = pd.read_csv('Ltadump.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
@@ -243,13 +242,12 @@ def update_map(cam_id):
 
     #get latest data
     main_df = pd.read_csv('Ltadump.csv')
-    incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     
     df_map = latest_df
-    df_map = df_map[df_map['camera_id'] == cam_id]
+    df_map = df_map[df_map['camera_id'] == str(cam_id)]
     camera = []
     for i in range(len(latest_df)):
         d=dict(name = latest_df.loc[i,'roadname'], lat = latest_df.loc[i,'latitude'], lon = latest_df.loc[i,'longitude'])
@@ -330,13 +328,13 @@ def display_metric(data):
         #while loop to check ImagePrediction.csv available or not -> sleep if yes u display and destroy
         while True:
             try:
-                imp=pd.read_csv("Imageprediction.csv")
+                imp=pd.read_csv("ImagePrediction.csv")
             except:
                 time.sleep(5)
             else:
                 ncar=imp['count'][0]
                 jam=imp['congestion'][0]
-                os.remove("Imageprediction.csv")
+                os.remove("ImagePrediction.csv")
                 break
                 
         return ncar, jam
@@ -344,12 +342,14 @@ def display_metric(data):
 # Create a callback from the camera_id dropdown to the traffic image
 @app.callback(
     Output("traffic_image", "src"),
+    Output("rt_car_count", "children"),
     Input("camera_dd", "value"))
 
 def update_image(cam_id):
     link = 'https://i.ibb.co/k0Qty5c/no-camera-selected.png'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
+    count = 'please select a camera'
     if cam_id:
         traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
@@ -357,18 +357,18 @@ def update_image(cam_id):
     return link
 
 # Create a callback from the camera_id dropdown to real time car count
-@app.callback(
-    Output("rt_car_count", "children"),
-    Input("camera_dd", "value"))
+# @app.callback(
+#     Output("rt_car_count", "children"),
+#     Input("camera_dd", "value"))
 
-def update_count(cam_id):
-    count = 'please select a camera'
-    #get latest data
+# def update_count(cam_id):
+#     count = 'please select a camera'
+#     #get latest data
 
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
-    if cam_id:
-        count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
-    return f'Car count: {count}'
+#     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+#     if cam_id:
+#         count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
+#     return f'Car count: {count}'
 
 @app.callback(
     Output("rt_jam", "children"),
