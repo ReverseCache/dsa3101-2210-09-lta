@@ -10,7 +10,7 @@ def callbackInterfaceClient(channel, method, properties, body):
         # process json string (body) to json
         # json_file change to dataframe (now u hv the prediction jam and count)
         # output saved to a csv in FrontEnd with name ImagePrediction.csv
-        pd.DataFrame(json.loads(body)[0]).to_csv('ImagePrediction.csv',index=False)
+        pd.DataFrame(json.loads(body)[0]).rename(columns={'CameraID':'camera_id','Message':'message'}).to_csv('ImagePrediction.csv',index=False)
 
     # Sends incidents request
     elif properties.headers.get("key") == "Incidents":
