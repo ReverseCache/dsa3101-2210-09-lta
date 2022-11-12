@@ -12,15 +12,16 @@ import pika
 import time
 import os
 
+#  Waits for the Ltadump file to be created first before running
 while True:
     try:
-        main_df = pd.read_csv('Ltadump.csv')
+        main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
         incidents_df=pd.read_csv('Incidents.csv')
     except:
         time.sleep(10)
     else:
-        main_df = pd.read_csv('Ltadump.csv')
-        incidents_df=pd.read_csv('Incidents.csv')
+        main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
+        incidents_df=pd.read_csv('Incidents.csv',converters={'camera_id':str})
         main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
         main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
@@ -194,7 +195,7 @@ style={'text-align':'center', 'background-color':'#C9DEF5', 'padding':'30px'})
 
 def update_scatter_map(cam_id):
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv')
+    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
@@ -236,8 +237,7 @@ def update_camera_dd(region_dd):
 def update_map(cam_id):
 
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv')
-    incidents_df=pd.read_csv('Incidents.csv')
+    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
@@ -338,31 +338,35 @@ def display_metric(data):
 # Create a callback from the camera_id dropdown to the traffic image
 @app.callback(
     Output("traffic_image", "src"),
+    Output("rt_car_count", "children"),
     Input("camera_dd", "value"))
 
 def update_image(cam_id):
     link = 'https://i.ibb.co/k0Qty5c/no-camera-selected.png'
     traffic_image_url='http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val={'AccountKey':'AO4qMbK3S7CWKSlplQZqlA=='}
+    count = 'please select a camera'
     if cam_id:
         traffic_image_req=requests.get(url=traffic_image_url,headers=headers_val)
         traffic_image_df=pd.DataFrame(eval(traffic_image_req.content)['value'])
         link = traffic_image_df.loc[traffic_image_df.camera_id == str(cam_id), 'ImageLink'].values[0]
-    return link
+        count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
+
+    return link,f'Car count: {count}'
 
 # Create a callback from the camera_id dropdown to real time car count
-@app.callback(
-    Output("rt_car_count", "children"),
-    Input("camera_dd", "value"))
+# @app.callback(
+#     Output("rt_car_count", "children"),
+#     Input("camera_dd", "value"))
 
-def update_count(cam_id):
-    count = 'please select a camera'
-    #get latest data
+# def update_count(cam_id):
+#     count = 'please select a camera'
+#     #get latest data
 
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
-    if cam_id:
-        count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
-    return f'Car count: {count}'
+#     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+#     if cam_id:
+#         count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
+#     return f'Car count: {count}'
 
 @app.callback(
     Output("rt_jam", "children"),
@@ -371,7 +375,7 @@ def update_count(cam_id):
 def update_count(cam_id):
     jam = 'please select a camera'
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv')
+    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
     incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
@@ -391,7 +395,7 @@ def update_count(cam_id):
 def update_rainfall(cam_id):
     rainfall = 'please select a camera'
     #get latest data
-    main_df = pd.read_csv('Ltadump.csv')
+    main_df = pd.read_csv('Ltadump.csv',converters={'camera_id':str})
     incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
