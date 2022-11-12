@@ -1,5 +1,5 @@
 camera_id,latitude,longitude,region,rainfall,image_links,roadname,count,congestion,images_datetime
-1001,1.32,103.21,Central,0,http...,East Coast Parkway (ECP)_1001,0,0,2022/11/11 11.11.11
-1002,1.32,103.121,Central,0,http...,Pan-Island Expressway (PIE)_1002,20,0,2022/11/11 11.11.12
-1001,1.32,103.21,Central,0,http...,East Coast Parkway (ECP)_1001,0,0,2022/11/11 11.11.13
-1002,1.32,103.121,Central,0,http...,Pan-Island Expressway (PIE)_1002,20,0,2022/11/11 11.11.14
+1001,1.316503756,103.8788298,Central,0,http...,East Coast Parkway (ECP)_1001,0,0,2022/11/11 11.11.11
+1002,1.323540004,103.9005879,Central,0,http...,Pan-Island Expressway (PIE)_1002,20,0,2022/11/11 11.11.12
+1001,1.326285852,103.8734225,Central,0,http...,East Coast Parkway (ECP)_1001,0,0,2022/11/11 11.11.13
+1002,1.324912929,103.8599042,Central,0,http...,Pan-Island Expressway (PIE)_1002,20,0,2022/11/11 11.11.14
