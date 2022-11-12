@@ -322,11 +322,13 @@ def display_metric(data):
         while True:
             try:
                 imp=pd.read_csv("Imageprediction.csv")
+            except:
+                time.sleep(5)
+            else:
                 ncar=imp['count'][0]
                 jam=imp['congestion'][0]
                 os.remove("Imageprediction.csv")
-            except:
-                time.sleep(5)
+                break
                 
         return ncar, jam
 
@@ -372,7 +374,7 @@ def update_count(cam_id):
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
-        jam = latest_df.loc[latest_df.camera_id == cam_id, 'is_jam'].values[0]
+        jam = latest_df.loc[latest_df.camera_id == cam_id, 'congestion'].values[0]
         if jam == 1:
             jam="Yes"
         else:
