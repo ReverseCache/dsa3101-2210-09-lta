@@ -9,6 +9,8 @@ def callbackInterfaceClient(channel, method, properties, body):
         # process json string (body) to json
         # json_file change to dataframe (now u hv the prediction jam and count)
         # output saved to a csv in FrontEnd with name ImagePrediction.csv
+        with open("ImagePrediction.txt", "w") as text_file:
+            text_file.write(body)
         pd.DataFrame(json.loads(body)[0]).rename(columns={'CameraID':'camera_id','Message':'message'}).to_csv('ImagePrediction.csv',index=False)
 
     # Sends incidents request
@@ -16,6 +18,8 @@ def callbackInterfaceClient(channel, method, properties, body):
         # process json string (body) to json
         # json_file to dataframe (if needed)
         # output saved to a csv in FrontEnd with name Incidents.csv
+        with open("Incidents.txt", "w") as text_file:
+            text_file.write(body)
         pd.DataFrame(json.loads(body)).to_csv('Incidents.csv',index=False)
 
     # Sends ltaDump request
@@ -26,6 +30,8 @@ def callbackInterfaceClient(channel, method, properties, body):
         #etc
         # output saved to a csv in FrontEnd with name Ltadump.csv
         #  if theres no error then we append 
+        with open("Ltadump.txt", "w") as text_file:
+            text_file.write(body)
         res=[]
         input=json.loads(body)[0]
         for i,(date,dump) in enumerate(input.items()):
