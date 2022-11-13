@@ -6,4 +6,3 @@ dash==2.6.2
 protobuf==3.20.*
 dash_bootstrap_components==1.2.1
 dash_leaflet==0.1.23
-
