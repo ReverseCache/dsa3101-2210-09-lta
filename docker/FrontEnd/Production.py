@@ -417,22 +417,22 @@ def update_incidents(cam_id):
 
    
 
-# if __name__ == "__main__":
-#     # Connects ApiServer to RabbitMQ
-#     while True:
-#         try:
-#             credentials = pika.PlainCredentials("guest", "guest")
-#             connection = pika.BlockingConnection(
-#                 pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
-#             )
-#             channel = connection.channel()
-#             break
-#         except Exception as e:
-#             print("ApiServer waiting for connection")
-#             time.sleep(5)
+if __name__ == "__main__":
+    # Connects ApiServer to RabbitMQ
+    while True:
+        try:
+            credentials = pika.PlainCredentials("guest", "guest")
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
+            )
+            channel = connection.channel()
+            break
+        except Exception as e:
+            print("ApiServer waiting for connection")
+            time.sleep(5)
 
 
-#     # Receives message from ClientServer and sends it to ModelServer or FileServer
-#     channel.queue_declare(queue='ClientInterfaceQ')
+    # Receives message from ClientServer and sends it to ModelServer or FileServer
+    channel.queue_declare(queue='ClientInterfaceQ')
 
 app.run_server(debug=True)
