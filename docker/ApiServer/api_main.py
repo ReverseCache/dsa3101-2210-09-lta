@@ -28,14 +28,22 @@ def get_payload():
     # Gets LTA camera id and images
     traffic_image_url = 'http://datamall2.mytransport.sg/ltaodataservice/Traffic-Imagesv2'
     headers_val = {'AccountKey': 'AO4qMbK3S7CWKSlplQZqlA=='}
-    traffic_image_req = requests.get(url=traffic_image_url, headers=headers_val)
-    traffic_image_df = pd.DataFrame(eval(traffic_image_req.content)['value'])
+
+    try:
+        traffic_image_req = requests.get(url=traffic_image_url, headers=headers_val)
+        traffic_image_df = pd.DataFrame(eval(traffic_image_req.content)['value'])
+    except:
+        traffic_image_df = pd.DataFrame()
 
     # Gets LTA incidents on Expressways
     traffic_incidents_url = 'http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents'
-    traffic_incidents_req = requests.get(
-        url=traffic_incidents_url, headers=headers_val)
-    traffic_incidents_df = pd.DataFrame(eval(traffic_incidents_req.content)['value'])
+
+    try:
+        traffic_incidents_req = requests.get(url=traffic_incidents_url, headers=headers_val)
+        traffic_incidents_df = pd.DataFrame(eval(traffic_incidents_req.content)['value'])
+    except:
+        traffic_incidents_df = pd.DataFrame()
+
     incidents_roads = ['AYE', 'BKE', 'CTE', 'ECP', 'KJE', 'KPE',
                        'MCE', 'PIE', 'SLE', 'TPE', 'Sentosa', 'Tuas', 'Woodlands']
     
@@ -47,23 +55,26 @@ def get_payload():
         )
     except:
         pass
-
+    
+    try:
     # NEA API to get rainfall in mm
-    weatherreq = requests.get(url='https://api.data.gov.sg/v1/environment/rainfall')
-    weather_df = pd.DataFrame(eval(weatherreq.content)['metadata']['stations'])
+        weatherreq = requests.get(url='https://api.data.gov.sg/v1/environment/rainfall')
+        weather_df = pd.DataFrame(eval(weatherreq.content)['metadata']['stations'])
 
-    weather_df['latitude'] = weather_df['location'].apply(lambda x: x['latitude'])
-    weather_df['longitude'] = weather_df['location'].apply(lambda x: x['longitude'])
-    weather_df['timestamp'] = eval(weatherreq.content)['items'][0]['timestamp']
-    weather_df['timestamp'] = pd.to_datetime(weather_df['timestamp'])
+        weather_df['latitude'] = weather_df['location'].apply(lambda x: x['latitude'])
+        weather_df['longitude'] = weather_df['location'].apply(lambda x: x['longitude'])
+        weather_df['timestamp'] = eval(weatherreq.content)['items'][0]['timestamp']
+        weather_df['timestamp'] = pd.to_datetime(weather_df['timestamp'])
 
-    station_rainfall = (
-        pd.DataFrame(eval(weatherreq.content)['items'][0]['readings'])
-        .rename(columns={'value': 'rainfall'})
-    )
+        station_rainfall = (
+            pd.DataFrame(eval(weatherreq.content)['items'][0]['readings'])
+            .rename(columns={'value': 'rainfall'})
+        )
 
-    weather_df = weather_df.merge(station_rainfall, how='left', left_on='id', right_on='station_id')
-    weather_df = weather_df.drop(['id', 'device_id', 'station_id', 'location'], axis=1)
+        weather_df = weather_df.merge(station_rainfall, how='left', left_on='id', right_on='station_id')
+        weather_df = weather_df.drop(['id', 'device_id', 'station_id', 'location'], axis=1)
+    except:
+        weather_df = pd.DataFrame()
 
     # Calculations and table joining
     traffic_image_df['key'] = 0
@@ -87,15 +98,18 @@ def get_payload():
 
     # Selects nearest weather station for each camera id
     final_df = traffic_image_df.merge(weather_df, 'outer', 'key')
-    final_df['distance_from_id'] = (np.vectorize(haversine)(
-        final_df['Latitude'], final_df['Longitude'], final_df['latitude'], final_df['longitude']))
-    final_df = (
-        final_df
-        .sort_values('distance_from_id')
-        .groupby('CameraID')
-        .head(1)[['CameraID', 'Latitude', 'Longitude', 'rainfall', 'ImageLink']]
-    )
-    final_df = final_df.sort_values('CameraID').reset_index(drop=True)
+    try:
+        final_df['distance_from_id'] = (np.vectorize(haversine)(
+            final_df['Latitude'], final_df['Longitude'], final_df['latitude'], final_df['longitude']))
+        final_df = (
+            final_df
+            .sort_values('distance_from_id')
+            .groupby('CameraID')
+            .head(1)[['CameraID', 'Latitude', 'Longitude', 'rainfall', 'ImageLink']]
+        )
+        final_df = final_df.sort_values('CameraID').reset_index(drop=True)
+    except:
+        pass
 
     # Converts dataframes to CSV to be used in frontend
     lta_dump_json = final_df.to_json(orient='records')
