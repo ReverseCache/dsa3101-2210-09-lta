@@ -12,5 +12,6 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY . ./
 RUN pip install -r requirements.txt
+RUN chmod a+x run.sh
 
-CMD ["python3" , "./model_main.py"]
+CMD [ "bash" , "./run.sh" ]
