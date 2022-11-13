@@ -431,4 +431,4 @@ if __name__ == "__main__":
     # Receives message from ClientServer and sends it to ModelServer or FileServer
     channel.queue_declare(queue='ClientInterfaceQ')
 
-app.run_server(debug=True)
+app.run_server(host="0.0.0.0", port=8050, debug=True)
