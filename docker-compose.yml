@@ -86,7 +86,7 @@ services:
     networks:
       - bridge-net
     ports:
-      - ${FE_Port}:8000
+      - ${FE_Port}:8050
     depends_on:
       - rabbitmq
 
