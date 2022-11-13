@@ -1,11 +1,8 @@
-#import torch
-import io, base64, requests
+import requests
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 import dash_leaflet.express as dlx
 from dash import Dash, html, dcc, Output, Input
-from dash_extensions.javascript import assign
-from PIL import Image
 import pandas as pd
 import plotly.express as px
 import pika
@@ -306,7 +303,6 @@ def display_metric(data):
         #file='img.jpg'
         #with open(file, 'wb') as f:
         #    f.write(img)
-        #image = Image.open(file) #need to encode this image to string
         file='img.txt'
         with open(file, 'w') as f:
             f.write(data.split(',')[1])

@@ -1,7 +1,6 @@
 import pika
 import time
 import pandas as pd
-import ast
 import json
 
 def callbackInterfaceClient(channel, method, properties, body):
