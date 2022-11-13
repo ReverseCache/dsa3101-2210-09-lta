@@ -316,7 +316,7 @@ def display_metric(data):
             try:
                 imp=pd.read_csv("ImagePrediction.csv")
             except:
-                time.sleep(5)
+                time.sleep(2)
             else:
                 ncar=imp['count'][0]
                 jam=imp['congestion'][0]
