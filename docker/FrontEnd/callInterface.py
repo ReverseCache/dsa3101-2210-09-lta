@@ -24,5 +24,5 @@ if __name__ == "__main__":
             properties=pika.BasicProperties(headers={'key': 'Incidents'}), body='')
         channel.basic_publish(exchange="", routing_key="ClientInterfaceQ",
             properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body='')
-        time.sleep(300)
+        time.sleep(60)
 
