@@ -245,17 +245,17 @@ def update_map(cam_id):
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
-    
-    df_map = latest_df
-    df_map = df_map[df_map['camera_id'] == str(cam_id)]
     camera = []
     for i in range(len(latest_df)):
-        d=dict(name = latest_df.loc[i,'roadname'], lat = latest_df.loc[i,'latitude'], lon = latest_df.loc[i,'longitude'])
+        d=dict(name = str(latest_df.iloc[i,0]), lat = latest_df.iloc[i,1], lon = latest_df.iloc[i,2])
         camera.append(d)
     geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
-
+    
+    df_map = latest_df
+    df_map = df_map[df_map['camera_id'] == cam_id]
+    
     if cam_id:
-        cam = [dict(name = str(df_map.loc[0,'camera_id']), lat = df_map.loc[0,'latitude'], lon = df_map.loc[0,'longitude'])]   
+        cam = [dict(name = str(df_map.iloc[0,0]), lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
 
     new_map = dl.Map(
