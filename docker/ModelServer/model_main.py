@@ -6,8 +6,9 @@ import requests
 import time
 
 from datetime import datetime
-from PIL import Image
+from PIL import Image, ImageFile
 from segmentation import get_count_model, get_congestion_model
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Predicts count and congestion from a single image
 def get_prediction(file):

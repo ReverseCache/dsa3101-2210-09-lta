@@ -118,8 +118,8 @@ if __name__ == "__main__":
             print("ApiServer waiting for connection")
             time.sleep(5)
 
-    # Does 100 API calls before shutting down
-    for i in range(100):
+    # Runs the API calls forever
+    while True:
         lta_dump_json, incidents_data_json = get_payload()
 
         # Sends lta_dump JSON to ModelServer

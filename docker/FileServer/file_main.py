@@ -6,24 +6,31 @@ import time
 from datetime import datetime, timedelta
 
 # Saves incidents_data JSON
-def callbackIncidents(channel, method, properties, body):
-    print(" [ApiServer -> FileServer] Received incidents_data JSON")
-    incidents_data = json.loads(json.loads(body))
+def save_incidents(file):
     with open('incidents_data.json', 'w') as outfile:
-        json.dump(incidents_data, outfile, indent=4)
+        json.dump(file, outfile, indent=4)
 
 # Saves lta_dump_predictions JSON
-def callbackLta(channel, method, properties, body):
-    print(" [ModelServer -> FileServer] Received lta_dump_predictions JSON")
-    lta_dump_predictions = json.loads(body.decode('utf-8').replace("'", '"'))
+def save_lta(file):
     currentDateTime = datetime.now() + timedelta(hours = 8)
     currentDateTimeString = currentDateTime.strftime("%Y_%m_%d_%H_%M_%S")
-
     if not os.path.exists("lta_dump_predictions/"):
         os.makedirs("lta_dump_predictions/")
     with open(f"lta_dump_predictions/{currentDateTimeString}.json", 'w') as outfile:
-        json.dump(lta_dump_predictions, outfile, indent=4)
+        json.dump(file, outfile, indent=4)
 
+# Calls save_incidents() on the nearest_incidents JSON
+def callbackIncidents(channel, method, properties, body):
+    print(" [ApiServer -> FileServer] Received incidents_data JSON")
+    incidents_data = json.loads(json.loads(body))
+    save_incidents(incidents_data)
+
+# Calls save_lta() on the lta_dump_predictions JSON
+def callbackLta(channel, method, properties, body):
+    print(" [ModelServer -> FileServer] Received lta_dump_predictions JSON")
+    lta_dump_predictions = json.loads(body.decode('utf-8').replace("'", '"'))
+    save_lta(lta_dump_predictions)
+    
 # Sends JSON file InterfaceServer
 def callbackInterfaceFile(channel, method, properties, body):
     # Sends incidents_data JSON
