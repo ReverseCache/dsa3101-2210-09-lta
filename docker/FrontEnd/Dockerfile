@@ -13,4 +13,4 @@ COPY . ./
 RUN pip3 install -r requirements.txt
 RUN chmod a+x run.sh
 
-CMD ["./run.sh"]
+CMD ["bash", "./run.sh"]
