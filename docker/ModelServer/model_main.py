@@ -48,10 +48,6 @@ def get_predictions(input_payload):
             input_images.append(img)
             camera_ids.append(camera_id)
             images_datetime.append(image_datetime)
-
-            # bytes_io = io.BytesIO()
-            # img.save(bytes_io, format = "jpeg")
-            # image_strings.append(base64.b64encode(bytes_io.getvalue()).decode("utf-8"))
         except Exception as e:
             pass
 
@@ -61,10 +57,6 @@ def get_predictions(input_payload):
 
         count_vehicles = list(map(len, count_results.pandas().xyxy))
         congestions = list(map(lambda x: min(sum(x["name"] == "congested"), 1), congestion_results.pandas().xyxy))
-
-        # output_payload = {"rainfall": rainfalls, "latitude": latitudes, "longitude": longitudes, 
-        #         "image_links": image_links, "image_strings": image_strings, "camera_id": camera_ids, 
-        #         "images_datetime": images_datetime, "count": count_vehicles, "congestion": congestions}
 
         output_payload = {"rainfall": rainfalls, "latitude": latitudes, "longitude": longitudes, 
                 "image_links": image_links, "camera_id": camera_ids, 
