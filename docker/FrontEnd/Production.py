@@ -275,7 +275,8 @@ def update_map(cam_id):
     Input('interval', 'n_intervals'))
 
 def display_plot(reg, cam_id, n):
-    df1=main_df.sort_values('images_datetime').groupby('camera_id').tail(7)
+    df=pd.read_csv('Ltadump.csv')
+    df1=df.sort_values('images_datetime').groupby('camera_id').tail(7)
     if reg and cam_id:
         ft1 = df1[df1.region==reg]
         # clear the road option to view all cameras within region
@@ -311,7 +312,7 @@ def display_image(data):
 
 def display_metric(data):
     #a=io.BytesIO()
-    if data is not None:
+    if data:
         #img=base64.b64decode(data.split(',')[1])
         #file='img.jpg'
         #with open(file, 'wb') as f:
@@ -338,6 +339,8 @@ def display_metric(data):
                 break
                 
         return ncar, jam
+    else:
+        return None, None
 
 # Create a callback from the camera_id dropdown to the traffic image
 @app.callback(
