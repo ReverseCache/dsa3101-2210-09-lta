@@ -24,9 +24,6 @@ while True:
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
 
-# df = pd.read_csv('traffic_count_sample.csv')
-# df2 = pd.read_csv('traffic_his_sample.csv')
-
 
 #scatter map plot showing count of cars across singapore
 # fig = px.scatter_mapbox(latest_df, lat="latitude", lon="longitude", color="count", size="count",
@@ -297,7 +294,6 @@ def display_image(data):
     Input('upload-data', 'contents'))
 
 def display_metric(data):
-    #a=io.BytesIO()
     if data:
         #img=base64.b64decode(data.split(',')[1])
         #file='img.jpg'
@@ -351,7 +347,7 @@ def update_all(cam_id):
 def update_count(cam_id):
     count = 'please select a camera'
     #get latest data
-
+    main_df = pd.read_csv('Ltadump.csv')
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if cam_id:
         count = latest_df.loc[latest_df.camera_id == cam_id, 'count'].values[0]
@@ -365,7 +361,6 @@ def update_count(cam_id):
     jam = 'please select a camera'
     #get latest data
     main_df = pd.read_csv('Ltadump.csv')
-    incidents_df=pd.read_csv('Incidents.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
@@ -398,6 +393,8 @@ def update_rainfall(cam_id):
 
 def update_incidents(cam_id):
     incidents = 'please select a camera'
+    #get latest data
+    incidents_df=pd.read_csv('Incidents.csv')
     incident_res=[]
     counter=1
     if cam_id:
