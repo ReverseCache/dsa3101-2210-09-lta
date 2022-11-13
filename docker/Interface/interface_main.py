@@ -42,23 +42,23 @@ def callbackModelInterface(channel, method, properties, body):
 def callbackFileInterface(channel, method, properties, body):
     # Sends incidents_data JSON
     if properties.headers.get("key") == "Incidents":
-        print(" [FileServer -> InterfaceServer] Received incidents_data JSON or nothing")
+        print(" [FileServer -> InterfaceServer] Received incidents_data JSON")
         with open('incidents.json', 'w') as outfile:
             json.dump(json.loads(body.decode('utf-8').replace("'", '"')), outfile, indent=4)
         message = body
         channel.basic_publish(exchange="", routing_key="InterfaceClientQ",
             properties=pika.BasicProperties(headers={'key': 'Incidents'}), body=message)
-        print(" [InterfaceServer -> ClientServer] Sent incidents_data JSON or nothing")
+        print(" [InterfaceServer -> ClientServer] Sent incidents_data JSON")
 
-    # Sends 40_mins_lta_dump_predictions JSON or nothing
+    # Sends 40_mins_lta_dump_predictions JSON
     elif properties.headers.get("key") == "Ltadump":
-        print(" [FileServer -> InterfaceServer] Received 40_mins_lta_dump_predictions JSON or nothing")
+        print(" [FileServer -> InterfaceServer] Received 40_mins_lta_dump_predictions JSON")
         with open('ltadump.json', 'w') as outfile:
             json.dump(json.loads(body.decode('utf-8').replace("'", '"')), outfile, indent=4)
         message = body
         channel.basic_publish(exchange="", routing_key="InterfaceClientQ",
             properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body=message)
-        print(" [InterfaceServer -> ClientServer] Sent 40_mins_lta_dump_predictions JSON or nothing")
+        print(" [InterfaceServer -> ClientServer] Sent 40_mins_lta_dump_predictions JSON")
 
 
 if __name__ == "__main__":
