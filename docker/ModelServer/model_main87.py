@@ -68,7 +68,7 @@ if __name__ == "__main__":
         try:
             credentials = pika.PlainCredentials("guest", "guest")
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 1000)
+                pika.ConnectionParameters("rabbitmq", 5672, "/", credentials, heartbeat = 10000)
             )
             channel = connection.channel()
             break
