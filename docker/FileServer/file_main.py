@@ -36,13 +36,8 @@ def callbackInterfaceFile(channel, method, properties, body):
     # Sends incidents_data JSON
     if properties.headers.get("key") == "Incidents":
         print(" [InterfaceServer -> FileServer] Received incidents request")
-        # Sends nothing if the file does not exist
-        if not os.path.exists("incidents_data.json"):
-            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
-                properties=pika.BasicProperties(headers={'key': 'Incidents'}), body='[]')
-            print(" [InterfaceServer -> FileServer] Sends nothing")
         # Sends incidents_data JSON otherwise
-        else:
+        if os.path.exists("incidents_data.json"):
             f = open("incidents_data.json")
             message = json.dumps(json.load(f))
             channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
@@ -52,14 +47,8 @@ def callbackInterfaceFile(channel, method, properties, body):
     # Sends 40_mins_lta_dump_predictions JSON
     elif properties.headers.get("key") == "Ltadump":
         print(" [InterfaceServer -> FileServer] Received ltaDump request")
-        # Sends nothing if the folder does not exist
-        if not os.path.exists("lta_dump_predictions/"):
-            channel.basic_publish(exchange="", routing_key="FileInterfaceQ",
-                properties=pika.BasicProperties(headers={'key': 'Ltadump'}), body='[]')
-            print(" [InterfaceServer -> FileServer] Sends nothing")
-                
         # Sends the 40_mins_lta_dump_predictions JSON otherwise
-        else:
+        if os.path.exists("lta_dump_predictions/"):
             FourtyMinsDateTime = datetime.now() + timedelta(hours = 8) - timedelta(minutes = 40)
             FourtyMinsDateTimeString = FourtyMinsDateTime.strftime("%Y_%m_%d_%H_%M_%S")
             last40MinsFiles = list(filter(lambda fileName: fileName >= FourtyMinsDateTimeString, os.listdir("lta_dump_predictions/")))
