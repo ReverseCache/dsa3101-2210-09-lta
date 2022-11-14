@@ -315,7 +315,7 @@ def display_metric(data):
                 time.sleep(2)
             else:
                 ncar=imp['count'][0]
-                jam=imp['congestion'][0]
+                jam=int(imp['congestion'][0]) == 1
                 os.remove("ImagePrediction.csv")
                 break
                 
@@ -357,7 +357,7 @@ def update_count(cam_id):
     Output("rt_jam", "children"),
     Input("camera_dd", "value"))
 
-def update_count(cam_id):
+def update_jam(cam_id):
     jam = 'please select a camera'
     #get latest data
     main_df = pd.read_csv('Ltadump.csv')
