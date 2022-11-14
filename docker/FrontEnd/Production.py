@@ -170,7 +170,7 @@ app.layout = html.Div([
             html.Br(),
             html.Div([
                 html.H4('Car count: '),
-                html.H5(id='count'),
+                #html.H5(id='count'),
                 dcc.Loading(
                     id="loading1",
                     children=html.Div(id="output1"))
@@ -178,7 +178,7 @@ app.layout = html.Div([
             html.Br(),
             html.Div([
                 html.H4('Traffic jam: '),
-                html.H5(id='tfjam'),
+                #html.H5(id='tfjam'),
                 dcc.Loading(
                     id="loading2",
                     children=html.Div(id="output2"))
@@ -320,24 +320,24 @@ def display_image(data):
         return data
 
 # show loading bars when processing image, reference: dash loading doc
-@app.callback(
-    Output("loading1", "children"),
-    Input("upload-data", "filename"))
-def load1(file):
-    time.sleep(6)
-    return None
+#@app.callback(
+#    Output("loading1", "children"),
+#    Input("upload-data", "filename"))
+#def load1(file):
+#    time.sleep(6)
+#    return None
 
-@app.callback(
-    Output("loading2", "children"),
-    Input("upload-data", "filename"))
-def load2(file):
-    time.sleep(6)
-    return None
+#@app.callback(
+#    Output("loading2", "children"),
+#    Input("upload-data", "filename"))
+#def load2(file):
+#    time.sleep(6)
+#    return None
  
 # display metric from uploaded image
 @app.callback(
-    Output('count', 'children'),
-    Output('tfjam', 'children'),
+    Output('loading1', 'children'),
+    Output('loading2', 'children'),
     Input('upload-data', 'contents'))
 
 def display_metric(data):
@@ -359,7 +359,7 @@ def display_metric(data):
             try:
                 imp=pd.read_csv("ImagePrediction.csv")
             except:
-                time.sleep(2)
+                time.sleep(6)
             else:
                 ncar=imp['count'][0]
                 jam = "Yes" if int(imp['congestion'][0]) == 1 else "No"
