@@ -24,6 +24,10 @@ while True:
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
 
+fig = px.scatter_mapbox(latest_df , lat="latitude", lon="longitude", color="count", size="count",
+                    hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
+                    color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
+fig.update_layout(mapbox_style="open-street-map")
 # interactive map displaying single camera
 camera = []
 for i in range(len(main_df)):
@@ -57,7 +61,7 @@ app.layout = html.Div([
     html.Div(
         children=[
             html.H2('Real-time count of Cars'),
-            dcc.Graph(id='scatter_map',
+            dcc.Graph(figure=fig, id='scatter_map',
                       style={'width': '80%', 'height': '100%', 'display':'inline-block'}),
         ]
     ),
@@ -246,8 +250,8 @@ def update_map(cam_id):
     
     return geojson
 
-@app.callback([Output("camera_dd", "value"),Output("camera_dd", "label")], [Input("geojson", "click_feature")])
-def click(feature):
+@app.callback(Output("camera_dd", "value"), [Input("geojson", "click_feature")])
+def value_click(feature):
     main_df = pd.read_csv('Ltadump.csv')
     main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
     main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
@@ -256,8 +260,19 @@ def click(feature):
         df_map = latest_df.copy()
         df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
         camid = df_map.iloc[0,0]
+        return camid
+
+@app.callback(Output("camera_dd", "label"), [Input("geojson", "click_feature")])
+def label_click(feature):
+    main_df = pd.read_csv('Ltadump.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+    if feature:
+        df_map = latest_df.copy()
+        df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
         roadname = df_map.iloc[0,6]
-        return camid, roadname
+        return roadname
 
 # create line plot for past 30-min data
 @app.callback(
