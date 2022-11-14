@@ -247,7 +247,7 @@ def update_map(cam_id):
 @app.callback([Output("camera_dd", "value"),
                Output("camera_dd", "label")], 
                [Input("geojson", "click_feature")])
-def capital_click(feature):
+def click(feature):
     camid = None
     roadname = None
     main_df = pd.read_csv('Ltadump.csv')
@@ -256,7 +256,7 @@ def capital_click(feature):
     latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
     if feature:
         df_map = latest_df.copy()
-        df_map = df_map[df_map['RoadName'] == feature['properties']['name']]
+        df_map = df_map[df_map['roadname'] == feature['properties']['name']]
         camid = df_map.iloc[0,0]
         roadname = feature['properties']['name']
         return camid, roadname
