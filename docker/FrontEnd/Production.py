@@ -270,8 +270,8 @@ def display_plot(reg, cam_id, n):
     df=pd.read_csv('Ltadump.csv')
     df1=df.sort_values('images_datetime').groupby('camera_id').tail(7)
     if reg and cam_id:
-        df2 = df1.groupby('region').agg('mean')
-        ft1 = df2[df2.index==reg]
+        #df2 = df1.groupby('region').agg('mean')
+        ft1 = df1[df1.index==reg]
         # clear the road option to view all cameras within region
         if cam_id:
             ft1 = ft1[ft1.camera_id==cam_id]
@@ -281,7 +281,7 @@ def display_plot(reg, cam_id, n):
     if reg:
         df2 = df1.groupby('region').agg('mean')
         ft1 = df2[df2.index==reg]
-        fig = px.line(ft1, x=ft1.index, y='count', title='Past 30 minutes aggregate count', markers=True)
+        fig = px.line(ft1, x=ft1.index, y='count', title='Past 30 minutes average count', markers=True)
 
     if cam_id:
         ft1 = df1[df1.camera_id==cam_id]
@@ -291,7 +291,7 @@ def display_plot(reg, cam_id, n):
     elif reg is None and cam_id is None:
         ft1 = df1.groupby('region').agg('mean')
         fig = px.line(ft1, x=ft1.index, y='count', color=ft1.index,
-                      title='Past 30 minutes aggregate count', markers=True)
+                      title='Past 30 minutes average count', markers=True)
     
     return fig
 
@@ -309,14 +309,14 @@ def display_image(data):
     Output("loading1", "children"),
     Input("upload-data", "filename"))
 def load1(file):
-    time.sleep(3)
+    time.sleep(6)
     return None
 
 @app.callback(
     Output("loading2", "children"),
     Input("upload-data", "filename"))
 def load2(file):
-    time.sleep(3)
+    time.sleep(6)
     return None
  
 # display metric from uploaded image
