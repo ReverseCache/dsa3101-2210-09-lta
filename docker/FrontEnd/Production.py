@@ -315,7 +315,7 @@ def display_metric(data):
                 time.sleep(2)
             else:
                 ncar=imp['count'][0]
-                jam=int(imp['congestion'][0]) == 1
+                jam = "Yes" if int(imp['congestion'][0]) == 1 else "No"
                 os.remove("ImagePrediction.csv")
                 break
                 
