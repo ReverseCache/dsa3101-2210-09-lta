@@ -24,24 +24,16 @@ while True:
         latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
         break
 
-
-#scatter map plot showing count of cars across singapore
-# fig = px.scatter_mapbox(latest_df, lat="latitude", lon="longitude", color="count", size="count",
-#                         hover_data={'latitude':False, 'longitude': False, 'roadname':True, 'region':True, 'count':True},
-#                         color_continuous_scale=px.colors.sequential.Reds, size_max=15, zoom=10)
-# fig.update_layout(mapbox_style="open-street-map")
-
-
 # interactive map displaying single camera
-#camera = []
-#for i in range(len(main_df)):
-#    d=dict(name = main_df.loc[i,'roadname'], lat = main_df.loc[i,'latitude'], lon = main_df.loc[i,'longitude'])
-#    camera.append(d)
+camera = []
+for i in range(len(main_df)):
+    d=dict(name = main_df.loc[i,'camera_id'], lat = main_df.loc[i,'latitude'], lon = main_df.loc[i,'longitude'])
+    camera.append(d)
 # Create drop down options.
 #dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
 #dd_defaults = [o["value"] for o in dd_options]
 # Generate geojson with a marker for each city and name as tooltip.
-#geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
+geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in camera])
 
 region = list(latest_df['region'].unique())
 camera_id = list(latest_df['camera_id'].unique())
@@ -100,7 +92,7 @@ app.layout = html.Div([
     dl.Map(
         children=[
             dl.TileLayer(),
-            dl.GeoJSON(id="geojson", zoomToBounds=True)
+            dl.GeoJSON(data=geojson, id="geojson", zoomToBounds=True)
         ],
         style={'width': '80%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map"
         ),
@@ -229,7 +221,7 @@ def update_camera_dd(region_dd):
 
 # Create a callback from the camera_id dropdown to the location map
 @app.callback(
-    Output("map", "children"),
+    Output("geojson", "data"),
     Input("camera_dd", "value"))
 
 def update_map(cam_id):
@@ -251,15 +243,21 @@ def update_map(cam_id):
     if cam_id:
         cam = [dict(name = str(df_map.iloc[0,0]), lat = df_map.iloc[0,1], lon = df_map.iloc[0,2])]   
         geojson = dlx.dicts_to_geojson([{**c, **dict(tooltip=c['name'])} for c in cam])
-
-    new_map = dl.Map(
-                children=[
-                    dl.TileLayer(),
-                    dl.GeoJSON(data=geojson, zoomToBounds=True)
-                ],
-                style={'width': '100%', 'height': '50vh', 'margin': "auto", "display": "block"}, id="map")
     
-    return new_map
+    return geojson
+
+@app.callback([Output("camera_dd", "value"),Output("camera_dd", "label")], [Input("geojson", "click_feature")])
+def click(feature):
+    main_df = pd.read_csv('Ltadump.csv')
+    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
+    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+    if feature:
+        df_map = latest_df.copy()
+        df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
+        camid = df_map.iloc[0,0]
+        roadname = df_map.iloc[0,6]
+        return camid, roadname
 
 # create line plot for past 30-min data
 @app.callback(
