@@ -439,17 +439,14 @@ def update_incidents(cam_id):
     incident_res=[]
     counter=1
     if cam_id:
-        incident_res.append('%s incidents nearby, '%(len(incidents_df.loc[incidents_df.CameraID==cam_id,].index)))
+        incident_res.append('%s incidents nearby, '%(len(incidents_df.loc[incidents_df.camera_id==cam_id,].index)))
         incident_res.append(html.Br())
-        for i in incidents_df.loc[incidents_df.CameraID == cam_id,]['Message'].to_list():
+        for i in incidents_df.loc[incidents_df.camera_id == cam_id,]['message'].to_list():
             incident_res+= " %s. %s "%(counter,i)
             incident_res.append(html.Br())
             counter += 1
         incidents=incident_res
     return incidents
-
-
-   
 
 if __name__ == "__main__":
     # Connects ApiServer to RabbitMQ
