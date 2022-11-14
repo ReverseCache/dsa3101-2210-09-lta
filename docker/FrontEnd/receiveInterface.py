@@ -11,7 +11,7 @@ def callbackInterfaceClient(channel, method, properties, body):
         # output saved to a csv in FrontEnd with name ImagePrediction.csv
         with open("ImagePrediction.json", "w") as outfile:
             json.dump(body.decode("utf-8"), outfile, indent=4)
-        pd.DataFrame(json.loads(body)[0]).rename(columns={'CameraID':'camera_id','Message':'message'}).to_csv('ImagePrediction.csv',index=False)
+        pd.DataFrame(json.loads(body)[0]).to_csv('ImagePrediction.csv',index=False)
 
     # Sends incidents request
     elif properties.headers.get("key") == "Incidents":
@@ -20,7 +20,7 @@ def callbackInterfaceClient(channel, method, properties, body):
         # output saved to a csv in FrontEnd with name Incidents.csv
         with open("Incidents.json", "w") as outfile:
             json.dump(body.decode("utf-8"), outfile, indent=4)
-        pd.DataFrame(json.loads(body)).to_csv('Incidents.csv',index=False)
+        pd.DataFrame(json.loads(body)).rename(columns={'CameraID':'camera_id','Message':'message'}).to_csv('Incidents.csv',index=False)
 
     # Sends ltaDump request
     elif properties.headers.get("key") == "Ltadump":

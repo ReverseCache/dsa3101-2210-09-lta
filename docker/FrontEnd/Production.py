@@ -172,10 +172,20 @@ app.layout = html.Div([
             html.Img(id='image',
                      style={'margin': '10px', 'height': '50%', 'width': '50%'}),
             html.Br(),
-            html.Div([ 'Car count: ',
-                html.H5(id='count') ]),
-            html.Div([ 'Traffic jam: ',
-                html.H5(id='tfjam') ])
+            html.Div([
+                html.H4('Car count: '),
+                html.H5(id='count'),
+                dcc.Interval(id="interval1", interval=100),
+                dbc.Progress(id="progress1",
+                             style={'width': '20%', 'margin': 'auto'}),
+                ]),
+            html.Div([
+                html.H4('Traffic jam: '),
+                html.H5(id='tfjam'),
+                dcc.Interval(id="interval2", interval=100),
+                dbc.Progress(id="progress2",
+                             style={'width': '20%', 'margin': 'auto'}),
+                ])
             ])
                     
 ],
@@ -275,7 +285,7 @@ def display_plot(reg, cam_id, n):
     elif reg is None and cam_id is None:
         ft1 = df1
     fig = px.line(ft1, x='images_datetime', y='count', color='camera_id',
-                  title='Past 30 minutes', markers=True)
+                  hover_data={'region'}, title='Past 30 minutes', markers=True)
     return fig
 
 # display uploaded image
@@ -286,7 +296,36 @@ def display_plot(reg, cam_id, n):
 def display_image(data):
     if data is not None:
         return data
-    
+
+# show loading bars when processing image, reference: Progress - dbc docs by Faculty AI
+@app.callback(
+    [Output("progress1", "value"), Output("progress1", "label")],
+    [Input("interval1", "n_intervals"), Input("upload-data", "contents"),
+     Input('count', 'children')])
+def update_progress1(n, data, ct):
+    #ct=None
+    if ct:
+        return 100, "100 %"
+    if data:
+        progress = min(n % 100, 100)
+        return progress, f"{progress} %"
+    else:
+        return None, None
+
+@app.callback(
+    [Output("progress2", "value"), Output("progress2", "label")],
+    [Input("interval2", "n_intervals"), Input("upload-data", "contents"),
+     Input('tfjam', 'children')])
+def update_progress2(n, data, tfj):
+    #tfj=None
+    if tfj:
+        return 100, "100 %"
+    if data:
+        progress = min(n % 100, 100)
+        return progress, f"{progress} %"
+    else:
+        return None, None
+ 
 # display metric from uploaded image
 @app.callback(
     Output('count', 'children'),
@@ -312,10 +351,12 @@ def display_metric(data):
             try:
                 imp=pd.read_csv("ImagePrediction.csv")
             except:
+                ncar=None
+                jam=None
                 time.sleep(2)
             else:
                 ncar=imp['count'][0]
-                jam=imp['congestion'][0]
+                jam = "Yes" if int(imp['congestion'][0]) == 1 else "No"
                 os.remove("ImagePrediction.csv")
                 break
                 
@@ -357,7 +398,7 @@ def update_count(cam_id):
     Output("rt_jam", "children"),
     Input("camera_dd", "value"))
 
-def update_count(cam_id):
+def update_jam(cam_id):
     jam = 'please select a camera'
     #get latest data
     main_df = pd.read_csv('Ltadump.csv')
