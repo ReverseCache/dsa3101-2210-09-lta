@@ -255,7 +255,7 @@ def click(feature):
         df_map = latest_df.copy()
         df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
         camid = df_map.iloc[0,0]
-        roadname = feature['properties']['name']
+        roadname = df_map.iloc[0,6]
         return camid, roadname
 
 # create line plot for past 30-min data
