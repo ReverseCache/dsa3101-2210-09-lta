@@ -175,16 +175,17 @@ app.layout = html.Div([
             html.Div([
                 html.H4('Car count: '),
                 html.H5(id='count'),
-                dcc.Interval(id="interval1", interval=100),
-                dbc.Progress(id="progress1",
-                             style={'width': '20%', 'margin': 'auto'}),
+                dcc.Loading(
+                    id="loading1",
+                    children=html.Div(id="output1"))
                 ]),
+            html.Br(),
             html.Div([
                 html.H4('Traffic jam: '),
                 html.H5(id='tfjam'),
-                dcc.Interval(id="interval2", interval=100),
-                dbc.Progress(id="progress2",
-                             style={'width': '20%', 'margin': 'auto'}),
+                dcc.Loading(
+                    id="loading2",
+                    children=html.Div(id="output2"))
                 ])
             ])
                     
@@ -271,21 +272,29 @@ def display_plot(reg, cam_id, n):
     df=pd.read_csv('Ltadump.csv')
     df1=df.sort_values('images_datetime').groupby('camera_id').tail(7)
     if reg and cam_id:
-        ft1 = df1[df1.region==reg]
+        df2 = df1.groupby('region').agg('mean')
+        ft1 = df2[df2.index==reg]
         # clear the road option to view all cameras within region
         if cam_id:
             ft1 = ft1[ft1.camera_id==cam_id]
+            fig = px.line(ft1, x='images_datetime', y='count',
+                          color='camera_id', title='Past 30 minutes', markers=True)
 
     if reg:
-        ft1 = df1[df1.region==reg]
+        df2 = df1.groupby('region').agg('mean')
+        ft1 = df2[df2.index==reg]
+        fig = px.line(ft1, x=ft1.index, y='count', title='Past 30 minutes aggregate count', markers=True)
 
     if cam_id:
         ft1 = df1[df1.camera_id==cam_id]
+        fig = px.line(ft1, x='images_datetime', y='count', 
+                      color='camera_id', title='Past 30 minutes', markers=True)
 
     elif reg is None and cam_id is None:
-        ft1 = df1
-    fig = px.line(ft1, x='images_datetime', y='count', color='camera_id',
-                  hover_data={'region'}, title='Past 30 minutes', markers=True)
+        ft1 = df1.groupby('region').agg('mean')
+        fig = px.line(ft1, x=ft1.index, y='count', color=ft1.index,
+                      title='Past 30 minutes aggregate count', markers=True)
+    
     return fig
 
 # display uploaded image
@@ -297,34 +306,20 @@ def display_image(data):
     if data is not None:
         return data
 
-# show loading bars when processing image, reference: Progress - dbc docs by Faculty AI
+# show loading bars when processing image, reference: dash loading doc
 @app.callback(
-    [Output("progress1", "value"), Output("progress1", "label")],
-    [Input("interval1", "n_intervals"), Input("upload-data", "contents"),
-     Input('count', 'children')])
-def update_progress1(n, data, ct):
-    #ct=None
-    if ct:
-        return 100, "100 %"
-    if data:
-        progress = min(n % 100, 100)
-        return progress, f"{progress} %"
-    else:
-        return None, None
+    Output("loading1", "children"),
+    Input("upload-data", "filename"))
+def load1(file):
+    time.sleep(3)
+    return None
 
 @app.callback(
-    [Output("progress2", "value"), Output("progress2", "label")],
-    [Input("interval2", "n_intervals"), Input("upload-data", "contents"),
-     Input('tfjam', 'children')])
-def update_progress2(n, data, tfj):
-    #tfj=None
-    if tfj:
-        return 100, "100 %"
-    if data:
-        progress = min(n % 100, 100)
-        return progress, f"{progress} %"
-    else:
-        return None, None
+    Output("loading2", "children"),
+    Input("upload-data", "filename"))
+def load2(file):
+    time.sleep(3)
+    return None
  
 # display metric from uploaded image
 @app.callback(
@@ -351,8 +346,6 @@ def display_metric(data):
             try:
                 imp=pd.read_csv("ImagePrediction.csv")
             except:
-                ncar=None
-                jam=None
                 time.sleep(2)
             else:
                 ncar=imp['count'][0]
