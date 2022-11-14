@@ -262,17 +262,17 @@ def value_click(feature):
         camid = df_map.iloc[0,0]
         return camid
 
-@app.callback(Output("camera_dd", "label"), [Input("geojson", "click_feature")])
-def label_click(feature):
-    main_df = pd.read_csv('Ltadump.csv')
-    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
-    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
-    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
-    if feature:
-        df_map = latest_df.copy()
-        df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
-        roadname = df_map.iloc[0,6]
-        return roadname
+#@app.callback(Output("camera_dd", "label"), [Input("geojson", "click_feature")])
+#def label_click(feature):
+#    main_df = pd.read_csv('Ltadump.csv')
+#    main_df['images_datetime']=main_df['images_datetime'].apply(lambda x:x.replace('.',':'))
+#    main_df['images_datetime']=pd.to_datetime(main_df['images_datetime'])
+#    latest_df=main_df.sort_values('images_datetime',ascending=False).groupby('camera_id').head(1)
+#    if feature:
+#        df_map = latest_df.copy()
+#        df_map = df_map[df_map['camera_id'] == int(feature['properties']['name'])]
+#        roadname = df_map.iloc[0,6]
+#        return roadname
 
 # create line plot for past 30-min data
 @app.callback(
