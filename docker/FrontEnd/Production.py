@@ -27,7 +27,8 @@ while True:
 # interactive map displaying single camera
 camera = []
 for i in range(len(main_df)):
-    d=dict(name = main_df.loc[i,'roadname'], lat = main_df.loc[i,'latitude'], lon = main_df.loc[i,'longitude'])#    camera.append(d)
+    d=dict(name = main_df.loc[i,'roadname'], lat = main_df.loc[i,'latitude'], lon = main_df.loc[i,'longitude'])
+    camera.append(d)
 # Create drop down options.
 #dd_options = [dict(value=c["name"], label=c["name"]) for c in camera]
 #dd_defaults = [o["value"] for o in dd_options]
@@ -244,9 +245,7 @@ def update_map(cam_id):
     
     return geojson
 
-@app.callback([Output("camera_dd", "value"),
-               Output("camera_dd", "label")], 
-               [Input("geojson", "click_feature")])
+@app.callback([Output("camera_dd", "value"),Output("camera_dd", "label")], [Input("geojson", "click_feature")])
 def click(feature):
     camid = None
     roadname = None
